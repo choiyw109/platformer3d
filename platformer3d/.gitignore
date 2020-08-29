@@ -59,3 +59,5 @@ sysinfo.txt
 # Crashlytics generated file
 crashlytics-build.properties
 
+# ignore version nummber changes
+[Pp]roject[Ss]ettings\ProjectVersion.txt
