@@ -75,6 +75,7 @@ namespace NonStandard {
 			}
 			dir.Normalize();
 			if (dir != Vector3.zero) {
+				Quaternion oldRotation = transform.rotation;
 				Quaternion idealLook = Quaternion.LookRotation(dir);
 				Vector3 euler = idealLook.eulerAngles;
 				if (euler.x < -180) { euler.x += 360; }
@@ -84,6 +85,12 @@ namespace NonStandard {
 				idealLook *= startingRotation;
 				lookRotation = Quaternion.RotateTowards(transform.rotation, idealLook, Time.deltaTime * lookSpeed);
 				transform.rotation = lookRotation;
+				euler = transform.localRotation.eulerAngles;
+				if (euler.x < -180) { euler.x += 360; }
+				if (euler.x > 180) { euler.x -= 360; }
+				if (euler.y < -180 || euler.y > 180) {
+					transform.rotation = oldRotation;
+				}
 			}
 		}
 
