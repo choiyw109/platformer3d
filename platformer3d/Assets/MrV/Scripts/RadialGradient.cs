@@ -172,7 +172,7 @@ namespace Moback.UXP.AssetGeneration
 
 		public void Update()
 		{
-			if(s.sprite.texture != texture) {
+			if(s != null && s.sprite != null && s.sprite.texture != texture) {
 				s.sprite = Sprite.Create(texture, new Rect(0, 0, texture.width, texture.height), new Vector2(.5f, .5f), (int)textureSize);
 				s.sprite.name = type.ToString() + textureSize;
 			}
