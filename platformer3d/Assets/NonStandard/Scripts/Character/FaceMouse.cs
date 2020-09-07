@@ -1,40 +1,35 @@
 ﻿using UnityEngine;
+using TMPro;
 
 namespace NonStandard {
 	public class FaceMouse : MonoBehaviour
 	{
 		public Camera _camera;
-		public CharacterMove body;
+		public Transform bodyTransform;
 		public float FaceX { get; set; }
 		public float FaceY { get; set; }
 		public float lookSpeed = 360;
+
 	#if UNITY_EDITOR
 		/// called when created by Unity Editor
 		void Reset() {
 			if (_camera == null) { _camera = GetComponent<Camera>(); }
 			if (_camera == null) { _camera = Camera.main; }
-			if (_camera == null) { _camera = FindObjectOfType<Camera>(); ; }
-			if (body == null) { body = transform.GetComponentInParent<CharacterMove>(); }
-			if (body == null) { body = FindObjectOfType<CharacterMove>(); }
-			}
-	#endif
-
-		void AlignBodyWithFace()
-		{
-			Vector3 delta = lookingAt - body.transform.position;
-			Vector3 right = Vector3.Cross(Vector3.up, delta);
-			if(right == Vector3.zero) { right = Vector3.Cross(_camera.transform.up, delta); } // prevent bug when looking directly up or down
-			Vector3 dirAlongHorizon = Vector3.Cross(right, Vector3.up).normalized;
-			body.transform.rotation = Quaternion.LookRotation(dirAlongHorizon, Vector3.up);
+			if (_camera == null) { _camera = FindObjectOfType<Camera>(); }
 		}
+	#endif
 
 		[HideInInspector] public RaycastHit raycastHit;
 		[HideInInspector] public Ray ray;
 		[HideInInspector] public Vector3 lookingAt;
 		[Tooltip("FaceMouse even while moving. Allows head to spin backwards around body in certain circumstances...")]
-		public bool followMouseEvenWhileMoving;
+		public bool followEvenWhileMoving;
+		public bool allowCreepyLookAngles = false;
 		private Quaternion startingRotation;
-		private Quaternion lookRotation;
+		/// <summary>
+		/// if there are no look angle constraints, this is how this object should be looking
+		/// </summary>
+		private Quaternion calculatedIdealLookRotation;
 
 		public void Start()
 		{
@@ -63,37 +58,32 @@ namespace NonStandard {
 
 		void Look()
 		{
-			if (body != null && !body.move.lookForwardMoving) { AlignBodyWithFace(); }
-			// if the position is behind the body
-			Vector3 f = body.transform.forward;
 			Vector3 dir = (lookingAt - transform.position);
-			if (Vector3.Dot(f, dir) < 0) {
-				// clamp the position to the body forward plane
-				dir = Vector3.ProjectOnPlane(dir, f);
-				// and push the look a little tiny bit forward, to prevent the character from spinning the head backwards
-				dir += (f * (1f / 128));
-			}
 			dir.Normalize();
 			if (dir != Vector3.zero) {
-				Quaternion oldRotation = transform.rotation;
 				Quaternion idealLook = Quaternion.LookRotation(dir);
-				Vector3 euler = idealLook.eulerAngles;
-				if (euler.x < -180) { euler.x += 360; }
-				if (euler.x > 180) { euler.x -= 360; }
-				euler.x = Mathf.Clamp(euler.x, -45, 45);
-				idealLook = Quaternion.Euler(euler);
-				idealLook *= startingRotation;
-				lookRotation = Quaternion.RotateTowards(transform.rotation, idealLook, Time.deltaTime * lookSpeed);
-				transform.rotation = lookRotation;
-				euler = transform.localRotation.eulerAngles;
-				if (euler.x < -180) { euler.x += 360; }
-				if (euler.x > 180) { euler.x -= 360; }
-				if (euler.y < -180 || euler.y > 180) {
-					transform.rotation = oldRotation;
+				if (!allowCreepyLookAngles) {
+					// prevent up-and-down angles from being too extreme
+					Vector3 euler = idealLook.eulerAngles;
+					if (euler.x < -180) { euler.x += 360; }
+					if (euler.x > 180) { euler.x -= 360; }
+					euler.x = Mathf.Clamp(euler.x, -45, 45);
+					idealLook = Quaternion.Euler(euler);
 				}
+				calculatedIdealLookRotation = Quaternion.RotateTowards(transform.rotation, idealLook, Time.deltaTime * lookSpeed);
+				transform.rotation = calculatedIdealLookRotation;
 			}
 		}
 
+		public static float NormalizeAngle(float a) {
+			if (a < -180) { a += 360; }
+			if (a > 180) { a -= 360; }
+			return a;
+		}
+		public static Vector3 NormalizeAngle(Vector3 euler) {
+			for(int i = 0; i < 3; ++i) { euler[i] = NormalizeAngle(euler[i]); }
+			return euler;
+		}
 		void TurnAccordingToJoystick(Vector3 joystickFace)
 		{
 			Vector3 f = (_camera != null) ? _camera.transform.forward : transform.forward;
@@ -111,16 +101,23 @@ namespace NonStandard {
 		void LateUpdate()
 		{
 			Vector3 joystickFace = new Vector3(FaceX, FaceY);
-			if (joystickFace != Vector3.zero)
-			{
+			if (joystickFace != Vector3.zero) {
 				TurnAccordingToJoystick(joystickFace);
-			} else
-			{
-				if(body == null || !body.move.lookForwardMoving || body.move.moveDirection == Vector3.zero || followMouseEvenWhileMoving)
-				{
+			} else {
+				if(bodyTransform == null || followEvenWhileMoving) {
 					LookAtMouse(Input.mousePosition);
 				} else {
-					ForceLookAt(transform.position + body.transform.forward);
+					ForceLookAt(transform.position + bodyTransform.forward);
+				}
+			}
+
+			if (!allowCreepyLookAngles && bodyTransform != null) {
+				Vector3 localLookdir = bodyTransform.InverseTransformDirection(calculatedIdealLookRotation * Vector3.forward);
+				if (localLookdir.z < 0) { // prevent the rotation if it would start going backwards
+					localLookdir.z = 0;
+					localLookdir.Normalize();
+					Vector3 dir = bodyTransform.TransformDirection(localLookdir);
+					transform.rotation = Quaternion.LookRotation(dir);
 				}
 			}
 		}

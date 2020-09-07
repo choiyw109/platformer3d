@@ -248,7 +248,7 @@ namespace NS
 				End lineEnds = default, int pointCount = -1, float startSize = LINESIZE, float endSize = LINESIZE)
 			{
 				GameObject go = gameObject;
-				if (pointCount < 0) { pointCount = (int)(24 * angle / 180f) + 1; }
+				if (pointCount < 0) { pointCount = (int)(24 * Mathf.Abs(angle) / 180f) + 1; }
 				if (!IsArc(firstPoint, normal, center, angle, startSize, endSize, End.normal, pointCount))
 				{
 					SetArc(firstPoint, normal, center, angle, startSize, endSize, End.normal, pointCount);

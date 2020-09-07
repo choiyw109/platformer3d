@@ -371,6 +371,12 @@ Transform:
     type: 3}
   m_PrefabInstance: {fileID: 1858686188}
   m_PrefabAsset: {fileID: 0}
+--- !u!4 &220571535 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 4362730656112909430, guid: 9a2124167cd85a04c9b847056c7116a2,
+    type: 3}
+  m_PrefabInstance: {fileID: 4367180678471351110}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &271314116
 GameObject:
   m_ObjectHideFlags: 0
@@ -1695,7 +1701,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 104090, guid: 8d542b9fba148c245b1da48b5fd1ffb2, type: 3}
       propertyPath: m_IsActive
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 160214, guid: 8d542b9fba148c245b1da48b5fd1ffb2, type: 3}
       propertyPath: m_IsActive
@@ -2079,6 +2085,11 @@ PrefabInstance:
       propertyPath: whoToFollow
       value: 
       objectReference: {fileID: 153455558}
+    - target: {fileID: 4367180677703481432, guid: 9a2124167cd85a04c9b847056c7116a2,
+        type: 3}
+      propertyPath: smoothRotationFollow
+      value: 360
+      objectReference: {fileID: 0}
     - target: {fileID: 4367180677703481447, guid: 9a2124167cd85a04c9b847056c7116a2,
         type: 3}
       propertyPath: character
@@ -2097,7 +2108,32 @@ PrefabInstance:
     - target: {fileID: 4367180678641727377, guid: 9a2124167cd85a04c9b847056c7116a2,
         type: 3}
       propertyPath: lookSpeed
-      value: 540
+      value: 360
+      objectReference: {fileID: 0}
+    - target: {fileID: 4367180678641727377, guid: 9a2124167cd85a04c9b847056c7116a2,
+        type: 3}
+      propertyPath: debug_out
+      value: 
+      objectReference: {fileID: 0}
+    - target: {fileID: 4367180678641727377, guid: 9a2124167cd85a04c9b847056c7116a2,
+        type: 3}
+      propertyPath: directionBody
+      value: 
+      objectReference: {fileID: 220571535}
+    - target: {fileID: 4367180678641727377, guid: 9a2124167cd85a04c9b847056c7116a2,
+        type: 3}
+      propertyPath: followMouseEvenWhileMoving
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4367180678641727377, guid: 9a2124167cd85a04c9b847056c7116a2,
+        type: 3}
+      propertyPath: bodyTransform
+      value: 
+      objectReference: {fileID: 220571535}
+    - target: {fileID: 4367180678641727377, guid: 9a2124167cd85a04c9b847056c7116a2,
+        type: 3}
+      propertyPath: followEvenWhileMoving
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 4368288135438404992, guid: 9a2124167cd85a04c9b847056c7116a2,
         type: 3}
