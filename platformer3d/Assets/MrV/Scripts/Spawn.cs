@@ -10,9 +10,14 @@ public class Spawn : MonoBehaviour
 
     void Update()
     {
-		if (Input.GetKeyDown(key))
+		if (key != KeyCode.None && Input.GetKeyDown(key))
 		{
-			Instantiate(thingToSpawn, transform.position, transform.rotation);
+			SpawnThing();
 		}
     }
+
+	public void SpawnThing()
+	{
+		Instantiate(thingToSpawn, transform.position, transform.rotation);
+	}
 }
