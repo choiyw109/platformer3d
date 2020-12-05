@@ -14,12 +14,12 @@ public class KeyCodeRouteToEventTrigger : KeyCodeRoute {
 
 	void Update () {
 		if(key != KeyCode.None) {
-			if (Input.GetKeyDown(key) && IsModifiersSatisfied()) {
+			if (UnityEngine.Input.GetKeyDown(key) && IsModifiersSatisfied()) {
 				PointerEventData edata = new PointerEventData(EventSystem.current);
 				eventTrigger.OnPointerDown(edata);
 				on = true;
 			}
-			if (Input.GetKeyUp(key) && on) {
+			if (UnityEngine.Input.GetKeyUp(key) && on) {
 				PointerEventData edata = new PointerEventData(EventSystem.current);
 				eventTrigger.OnPointerUp(edata);
 				on = false;

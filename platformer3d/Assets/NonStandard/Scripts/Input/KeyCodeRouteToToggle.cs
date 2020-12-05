@@ -18,11 +18,11 @@ public class KeyCodeRouteToToggle : KeyCodeRoute {
 
 	void Update () {
 		if(key != KeyCode.None) {
-			if (Input.GetKeyDown(key) && IsModifiersSatisfied()) {
+			if (UnityEngine.Input.GetKeyDown(key) && IsModifiersSatisfied()) {
 				Toggle();
 				on = true;
 			}
-			if (onToggleOnRelease && Input.GetKeyUp(key) && on) {
+			if (onToggleOnRelease && UnityEngine.Input.GetKeyUp(key) && on) {
 				Toggle();
 				on = false;
 			}

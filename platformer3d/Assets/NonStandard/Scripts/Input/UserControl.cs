@@ -21,7 +21,7 @@ public class UserControl : MonoBehaviour {
 	{
 		public KeyCode key;
 		public bool notPressedExplicitly;
-		public bool IsSatisfied() { return Input.GetKey(key) != notPressedExplicitly; }
+		public bool IsSatisfied() { return UnityEngine.Input.GetKey(key) != notPressedExplicitly; }
 	}
 
 	public static bool IsModifiersSatisfied(KeyModifier[] modifiers)

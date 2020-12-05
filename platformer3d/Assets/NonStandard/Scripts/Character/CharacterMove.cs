@@ -30,7 +30,7 @@ namespace NonStandard {
 			public bool jumpAtObstacle;
 			public bool arrived;
 			public static bool GetClickedLocation(Camera camera, out Vector3 targetPosition) {
-				Ray ray = camera.ScreenPointToRay(Input.mousePosition);
+				Ray ray = camera.ScreenPointToRay(UnityEngine.Input.mousePosition);
 				RaycastHit rh = new RaycastHit();
 				if (Physics.Raycast(ray, out rh)) {
 					targetPosition = rh.point;

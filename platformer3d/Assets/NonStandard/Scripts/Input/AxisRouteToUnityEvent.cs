@@ -14,7 +14,7 @@ public class AxisRouteToUnityEvent : AxisRoute
 	{
 		if (IsModifiersSatisfied())
 		{
-			float value = Input.GetAxis(axis);
+			float value = UnityEngine.Input.GetAxis(axis);
 			if (value != lastValue)
 			{
 				unityEvent.Invoke(value * outputMultiplier);

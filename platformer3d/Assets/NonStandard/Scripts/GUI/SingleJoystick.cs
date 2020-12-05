@@ -29,8 +29,8 @@ public class SingleJoystick : MonoBehaviour, IDragHandler, IPointerUpHandler, IP
 			return false;
 		}
 		public void GetAxisValues(ref float horizontal, ref float vertical) {
-			if (!string.IsNullOrEmpty(horizontalAxis)) horizontal = Input.GetAxisRaw(horizontalAxis);
-			if (!string.IsNullOrEmpty(verticalAxis)) vertical = Input.GetAxisRaw(verticalAxis);
+			if (!string.IsNullOrEmpty(horizontalAxis)) horizontal = UnityEngine.Input.GetAxisRaw(horizontalAxis);
+			if (!string.IsNullOrEmpty(verticalAxis)) vertical = UnityEngine.Input.GetAxisRaw(verticalAxis);
 			if (!notNormalized) {
 				Vector2 v = new Vector2(horizontal, vertical);
 				float dist = v.magnitude;

@@ -1,14 +1,14 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Events;
 
 public class ActivateOnStart : MonoBehaviour
 {
-	public GameObject toActivateOnStart;
-	public bool setActive = true;
+	public UnityEvent onStart;
 
 	void Start()
     {
-		toActivateOnStart.SetActive(setActive);
+		onStart.Invoke();
 	}
 }

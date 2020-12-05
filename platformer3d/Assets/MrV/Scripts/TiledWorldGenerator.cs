@@ -122,5 +122,6 @@ public class TiledWorldGenerator : MonoBehaviour
 		if (IsMissingWorld()) {
 			Generate();
 		}
+		//Noisy.PlaySound("song");
 	}
 }

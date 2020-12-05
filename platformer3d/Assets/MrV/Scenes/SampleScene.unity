@@ -121,39 +121,6 @@ NavMeshSettings:
     debug:
       m_Flags: 0
   m_NavMeshData: {fileID: 0}
---- !u!1 &45708004 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 186354, guid: 8d542b9fba148c245b1da48b5fd1ffb2,
-    type: 3}
-  m_PrefabInstance: {fileID: 1858686188}
-  m_PrefabAsset: {fileID: 0}
---- !u!114 &45708005
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 45708004}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 55be00b7a6f6ac941b226d2749e862e0, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  minimumY: -20
---- !u!114 &45708006
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 45708004}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: f078060b2ba903f499e979d05b1a6741, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  hp: 0
-  maxHp: 0
 --- !u!28 &57424388
 Texture2D:
   m_ObjectHideFlags: 0
@@ -373,7 +340,7 @@ MonoBehaviour:
     type: 3}
   m_PrefabInstance: {fileID: 1858686188}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 45708004}
+  m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 9946da85399cde7459691bf4813d6c1a, type: 3}
@@ -1273,6 +1240,64 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 755290548}
   m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!1 &845528372
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 845528374}
+  - component: {fileID: 845528373}
+  m_Layer: 0
+  m_Name: noisy
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &845528373
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 845528372}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e6fe046ad46def14e8417bb9d02c5e9f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  noises:
+  - name: song
+    sounds:
+    - {fileID: 8300000, guid: 8ad3fa1433c2cf44ab2996c3661eabf0, type: 3}
+    volumeReduce: 0.943
+    backgroundMusic: 0
+    playOnStart: 0
+    is2D: 1
+    followsObject: 0
+    loop: 0
+    onePlayAtATime: 0
+    onCollision: 0
+    onTrigger: 0
+    lastNoisePlayed: -1
+    activeAudioSource: {fileID: 0}
+--- !u!4 &845528374
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 845528372}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 368.5, y: 228, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_RootOrder: 19
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &933384141
 GameObject:
   m_ObjectHideFlags: 0
@@ -1396,8 +1421,20 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0f79d3b0e5c06424ea3f67e186b0f8f9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  toActivateOnStart: {fileID: 941099480}
-  setActive: 1
+  onStart:
+    m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 941099480}
+        m_MethodName: SetActive
+        m_Mode: 6
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 1
+        m_CallState: 2
 --- !u!1 &976186408
 GameObject:
   m_ObjectHideFlags: 0
@@ -2403,6 +2440,10 @@ PrefabInstance:
       value: player
       objectReference: {fileID: 0}
     - target: {fileID: 186354, guid: 8d542b9fba148c245b1da48b5fd1ffb2, type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 189500, guid: 8d542b9fba148c245b1da48b5fd1ffb2, type: 3}
       propertyPath: m_IsActive
       value: 1
       objectReference: {fileID: 0}
