@@ -6,16 +6,12 @@ using System.Text;
 
 namespace NonStandard.Inputs {
 	[Serializable]
-	public class KBind : IComparable<KBind> {
-		/// <summary>
-		/// how to name this key binding in any user interface that pops up.
-		/// </summary>
-		public string name;
+	public class KBind : InputBind, IComparable<KBind> {
 		/// <summary>
 		/// smaller number is greater priority.
 		/// </summary>
 		public int priority = 1000;
-    
+		public bool disable;
 		/// <summary>
 		/// if true, can still be triggered after the key event is consumed
 		/// </summary>
@@ -48,7 +44,7 @@ namespace NonStandard.Inputs {
 			public void RemoveHolds() { onHold.RemoveAllListeners(); actionHold = null;}
 			public void RemoveReleases() { onRelease.RemoveAllListeners(); actionRelease = null;}
         
-			private string FilterMethodName(string methodName) {
+			internal static string FilterMethodName(string methodName) {
 				if (methodName.StartsWith("set_") || methodName.StartsWith("get_")) { return methodName.Substring(4); }
 				return methodName;
 			}
@@ -111,8 +107,7 @@ namespace NonStandard.Inputs {
 		public KBind(KCode key, string name = null, Func<bool> onPressEvent = null, Func<bool> onHoldEvent = null,
 			Func<bool> onReleaseEvent = null, Func<bool> additionalRequirement = null, 
 			bool eventAlwaysTriggerable = false)
-			: this(new KCombination(key), name, onPressEvent, onHoldEvent, onReleaseEvent, additionalRequirement) {
-			this.eventAlwaysTriggerable = eventAlwaysTriggerable;
+			: this(new KCombination(key), name, onPressEvent, onHoldEvent, onReleaseEvent, additionalRequirement, eventAlwaysTriggerable) {
 		}
 
 		/// <summary>
@@ -121,8 +116,7 @@ namespace NonStandard.Inputs {
 		public KBind(KCombination kCombo, string name = null, Func<bool> onPressEvent = null, Func<bool> onHoldEvent = null,
 			Func<bool> onReleaseEvent = null, Func<bool> additionalRequirement = null, 
 			bool eventAlwaysTriggerable = false)
-			: this(new[] {kCombo}, name, onPressEvent, onHoldEvent, onReleaseEvent, additionalRequirement) {
-			this.eventAlwaysTriggerable = eventAlwaysTriggerable;
+			: this(new[] {kCombo}, name, onPressEvent, onHoldEvent, onReleaseEvent, additionalRequirement, eventAlwaysTriggerable) {
 		}
     
 		/// <summary>
@@ -211,6 +205,7 @@ namespace NonStandard.Inputs {
 		public bool DoRelease() { return keyEvent.DoRelease(); }
 
 		public KCombination GetDown() {
+			if (disable) return null;
 			bool allowedChecked = false;
 			for (int i = 0; i < keyCombinations.Length; ++i) {
 				if (keyCombinations[i].IsSatisfiedDown()) {
@@ -223,6 +218,7 @@ namespace NonStandard.Inputs {
 		public bool IsDown() { return GetDown() != null; }
 
 		public KCombination GetHeld() {
+			if (disable) return null;
 			bool allowedChecked = false;
 			for (int i = 0; i < keyCombinations.Length; ++i) {
 				if (keyCombinations[i].IsSatisfiedHeld()) {
@@ -235,6 +231,7 @@ namespace NonStandard.Inputs {
 		public bool IsHeld() { return GetHeld() != null; }
 
 		public KCombination GetUp() {
+			if (disable) return null;
 			bool allowedChecked = false;
 			for (int i = 0; i < keyCombinations.Length; ++i) {
 				if (keyCombinations[i].IsSatisfiedUp()) {
@@ -355,13 +352,16 @@ namespace NonStandard.Inputs {
 		}
 
 		public override string ToString() {
+			return ToString(modifiers)+ key.NormalName();
+		}
+
+		public static string ToString(Modifier[] modifiers) {
 			StringBuilder text = new StringBuilder();
 			if (modifiers != null) {
 				for (int i = 0; i < modifiers.Length; ++i) {
 					text.Append(modifiers[i]).Append("+");
 				}
 			}
-			text.Append(key.NormalName());
 			return text.ToString();
 		}
 
@@ -380,18 +380,44 @@ namespace NonStandard.Inputs {
 			return kp;
 		}
 
+		public static bool IsSatisfiedDown(Modifier[] modifiers, ref bool aKeyWasJustPressed) {
+			for (int i = 0; i < modifiers.Length; ++i) {
+				KState ks = modifiers[i].key.GetState();
+				if (ks == KState.KeyReleased) {
+					return false;
+				}
+				if (ks == KState.KeyDown) {
+					aKeyWasJustPressed = true;
+				}
+			}
+			return true;
+		}
+		public static bool IsSatisfiedHeld(Modifier[] modifiers) {
+			for (int i = 0; i < modifiers.Length; ++i) {
+				if (!modifiers[i].key.IsHeld()) { return false; }
+			}
+			return true;
+		}
+		public static bool IsSatisfiedUp(Modifier[] modifiers, ref bool anyKeyIsBeingReleased) {
+			for (int i = 0; i < modifiers.Length; ++i) {
+				KState ks = modifiers[i].key.GetState();
+				if (ks == KState.KeyReleased) {
+					return false;
+				}
+				if (ks == KState.KeyUp) {
+					anyKeyIsBeingReleased = true;
+				}
+			}
+			return true;
+		}
+
 		public bool IsSatisfiedDown() {
 			KState ks = key.GetState();
 			bool anyKeyIsBeingPressed = ks == KState.KeyDown;
 			if (ks == KState.KeyReleased) return false;
 			if(modifiers != null) {
-				for (int i = 0; i < modifiers.Length; ++i) {
-					ks = modifiers[i].key.GetState();
-					if (ks == KState.KeyReleased) {
-						return false;
-					} else if (ks == KState.KeyDown) {
-						anyKeyIsBeingPressed = true;
-					}
+				if(!IsSatisfiedDown(modifiers, ref anyKeyIsBeingPressed)) {
+					return false;
 				}
 			}
 			return anyKeyIsBeingPressed;
@@ -399,9 +425,7 @@ namespace NonStandard.Inputs {
 		public bool IsSatisfiedHeld() {
 			if (!key.IsHeld()) return false;
 			if (modifiers != null) {
-				for (int i = 0; i < modifiers.Length; ++i) {
-					if (!modifiers[i].key.IsHeld()) { return false; }
-				}
+				if (!IsSatisfiedHeld(modifiers)) return false;
 			}
 			return true;
 		}
@@ -410,13 +434,8 @@ namespace NonStandard.Inputs {
 			bool anyKeyIsBeingReleased = ks == KState.KeyUp;
 			if (ks == KState.KeyReleased) return false;
 			if (modifiers != null) {
-				for (int i = 0; i < modifiers.Length; ++i) {
-					ks = modifiers[i].key.GetState();
-					if (ks == KState.KeyReleased) {
-						return false;
-					} else if (ks == KState.KeyUp) {
-						anyKeyIsBeingReleased = true;
-					}
+				if(!IsSatisfiedUp(modifiers, ref anyKeyIsBeingReleased)) {
+					return false;
 				}
 			}
 			return anyKeyIsBeingReleased;

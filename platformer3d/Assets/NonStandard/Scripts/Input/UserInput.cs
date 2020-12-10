@@ -6,11 +6,56 @@ using UnityEngine;
 using UnityEngine.Events;
 
 namespace NonStandard.Inputs {
-	public class AppInput : MonoBehaviour {
+	public class InputBind {
+		/// <summary>
+		/// how to name this key binding in any user interface that pops up.
+		/// </summary>
+		public string name;
+	}
+
+	public class UserInput : MonoBehaviour {
+		public List<KBind> keyBinds = new List<KBind>();
+		public List<AxBind> axisBinds = new List<AxBind>();
+
+		private void OnEnable() {
+			if(keyBinds.Count > 0 && !AppInput.HasKeyBind(keyBinds[0])) {
+				for (int i = 0; i < keyBinds.Count; ++i) { AppInput.AddListener(keyBinds[i]); }
+			}
+			if(axisBinds.Count > 0 && !AppInput.HasAxisBind(axisBinds[0])) {
+				for (int i = 0; i < axisBinds.Count; ++i) { AppInput.AddListener(axisBinds[i]); }
+			}
+		}
+
+		private void OnDisable() {
+			if (AppInput.IsQuitting) return;
+			if (keyBinds.Count > 0 && AppInput.HasKeyBind(keyBinds[0])) {
+				for (int i = 0; i < keyBinds.Count; ++i) { AppInput.RemoveListener(keyBinds[i]); }
+			}
+			if (axisBinds.Count > 0 && AppInput.HasAxisBind(axisBinds[0])) {
+				for (int i = 0; i < axisBinds.Count; ++i) { AppInput.RemoveListener(axisBinds[i]); }
+			}
+		}
+	}
+
+	public class AppInput : UserInput {
+		[TextArea(1, 30), SerializeField]
+		private string CurrentKeyBindings;
+		public bool updateText = true;
+		private bool textInputHappening = false;
+		[HideInInspector] public bool debugPrintPossibleKeyConflicts = false;
+		[HideInInspector] public bool debugPrintActivatedEvents = false;
+		private KBindGroup[] keyBindGroups;
+		public int updates { get; protected set; }
+		public static bool IsQuitting { get; private set; }
+
+		protected List<KBind> kBindPresses = new List<KBind>();
+		protected List<KBind> kBindHolds = new List<KBind>();
+		protected List<KBind> kBindReleases = new List<KBind>();
+
 		public static void Log(string text) => Debug.Log(text);
 		public static void Log(object obj) => Log(obj.ToString());
-		private static AppInput _instance;
 
+		private static AppInput _instance;
 		public static AppInput Instance {
 			get {
 				if (!Application.isPlaying) { throw new Exception("something is trying to create AppInput during edit time"); }
@@ -24,24 +69,32 @@ namespace NonStandard.Inputs {
 			}
 		}
 
-		public List<KBind> keyBinds = new List<KBind>();
-    
-		protected List<KBind> kBindPresses = new List<KBind>();
-		protected List<KBind> kBindHolds = new List<KBind>();
-		protected List<KBind> kBindReleases = new List<KBind>();
-
-		[TextArea(1, 30), SerializeField]
-		private string CurrentKeyBindings;
-    
-		private bool textInputHappening = false;
-
 		public static bool RemoveListener(string name) => Instance.RemoveKeyBind(name);
 		public static bool RemoveListener(KBind kBind) => Instance.RemoveKeyBind(kBind);
+		public static bool RemoveListener(AxBind axBind) => Instance.RemoveAxisBind(axBind);
+		public static bool AddListener(AxBind axBind) => Instance.AddAxisBind(axBind);
 		public static bool AddListener(KBind kBind) => Instance.AddKeyBind(kBind);
 		public static bool AddListener(KCode key, Func<bool> whatToDo, string name) => AddListener(new KBind(key, whatToDo, name));
 
-		public static bool HasListener(string name) {
-			int index = (!string.IsNullOrEmpty(name)) ? Instance.keyBinds.FindIndex(kb => kb.name == name) : -1;
+		public static bool HasKeyBind(string name) {
+			if (string.IsNullOrEmpty(name)) return false;
+			int index = Instance.keyBinds.FindIndex(kb => kb.name == name);
+			return index >= 0;
+		}
+
+		public static bool HasAxisBind(string name) {
+			if (string.IsNullOrEmpty(name)) return false;
+			int index = Instance.axisBinds.FindIndex(kb => kb.name == name);
+			return index >= 0;
+		}
+
+		public static bool HasKeyBind(KBind kBind) {
+			int index = kBind != null ? Instance.keyBinds.IndexOf(kBind) : -1;
+			return index >= 0;
+		}
+
+		public static bool HasAxisBind(AxBind axBind) {
+			int index = axBind != null ? Instance.axisBinds.IndexOf(axBind) : -1;
 			return index >= 0;
 		}
 
@@ -57,11 +110,21 @@ namespace NonStandard.Inputs {
 			return RemoveListener(kBind, index);
 		}
 
+		public bool RemoveAxisBind(AxBind axBind) {
+			int index = axisBinds.IndexOf(axBind);
+			if (index < 0) return false;
+			axBind.DoAxis(0);
+			axisBinds.RemoveAt(index);
+			if (updateText) { UpdateCurrentKeyBindText(); }
+			return true;
+		}
+
 		private bool RemoveListener(KBind kBind, int kBindIndex){
 			keyBinds.RemoveAt(kBindIndex);
 			UpdateKeyBindGroups(kBind, KBindChange.Remove);
 			return true;
 		}
+
 		public bool AddKeyBind(KBind kBind) {
 			int index = (!string.IsNullOrEmpty(kBind.name)) ? keyBinds.FindIndex(kb=> kb.name == kBind.name) : -1;
 			KBindChange kindOfChange = KBindChange.Add;
@@ -72,6 +135,16 @@ namespace NonStandard.Inputs {
 				keyBinds.Add(kBind);
 			}
 			return UpdateKeyBindGroups(kBind, kindOfChange);
+		}
+
+		public bool AddAxisBind(AxBind axisBind) {
+			int index = (!string.IsNullOrEmpty(axisBind.name)) ? keyBinds.FindIndex(kb => kb.name == axisBind.name) : -1;
+			if(index < 0) {
+				axisBinds.Add(axisBind);
+				if (updateText) { UpdateCurrentKeyBindText(); }
+				return true;
+			}
+			return false;
 		}
 
 		private static bool UpdateLists(KBind kBind, KBindChange change) {
@@ -88,9 +161,9 @@ namespace NonStandard.Inputs {
 		private bool UpdateKeyBindGroups(KBind kBind, KBindChange change) {
 			bool changeHappened = false;
 			kBind.Normalize();
-			if(kBind.keyCombinations != null && kBind.keyCombinations[0].modifiers != null)
-				Log(kBind.keyCombinations[0].modifiers[0]);
-			Log(kBind);
+			//if(kBind.keyCombinations != null && kBind.keyCombinations[0].modifiers != null)
+			//	Log(kBind.keyCombinations[0].modifiers[0]);
+			//Log(kBind);
 			EnsureInitializedKeyBindGroups();
 			if(change == KBindChange.Update) {
 				changeHappened |= UpdateKeyBindGroups(kBind, KBindChange.Remove);
@@ -100,7 +173,7 @@ namespace NonStandard.Inputs {
 				KBindGroup group = keyBindGroups[k];
 				changeHappened |= group.UpdateKeyBinding(kBind, change);
 			}
-			if (changeHappened) {
+			if (updateText && changeHappened) {
 				UpdateCurrentKeyBindText();
 			}
 			return changeHappened;
@@ -352,9 +425,6 @@ namespace NonStandard.Inputs {
 			}
 		}
 
-		[HideInInspector] public bool debugPrintPossibleKeyConflicts = false;
-		[HideInInspector] public bool debugPrintActivatedEvents = false;
-		KBindGroup[] keyBindGroups;
 		public void Awake() {
 			Application.quitting += () => {
 				IsQuitting = true;
@@ -367,9 +437,9 @@ namespace NonStandard.Inputs {
 		public void EnsureInitializedKeyBindGroups() {
 			if (keyBindGroups != null) return;
 			keyBindGroups = new KBindGroup[] {
-				new KBindGroup{name="press",  keyBindList=kBindPresses, trigger=kb=>kb.GetDown(),action=kb=>kb.DoPress(),  putInList=kb=>kb.keyEvent.CountPress>0  },
-				new KBindGroup{name="hold",   keyBindList=kBindHolds,   trigger=kb=>kb.GetHeld(),action=kb=>kb.DoHold(),   putInList=kb=>kb.keyEvent.CountHold>0   },
-				new KBindGroup{name="release",keyBindList=kBindReleases,trigger=kb=>kb.GetUp(),  action=kb=>kb.DoRelease(),putInList=kb=>kb.keyEvent.CountRelease>0},
+				new KBindGroup{name="Press",  keyBindList=kBindPresses, trigger=kb=>kb.GetDown(),action=kb=>kb.DoPress(),  putInList=kb=>kb.keyEvent.CountPress>0  },
+				new KBindGroup{name="Hold",   keyBindList=kBindHolds,   trigger=kb=>kb.GetHeld(),action=kb=>kb.DoHold(),   putInList=kb=>kb.keyEvent.CountHold>0   },
+				new KBindGroup{name="Release",keyBindList=kBindReleases,trigger=kb=>kb.GetUp(),  action=kb=>kb.DoRelease(),putInList=kb=>kb.keyEvent.CountRelease>0},
 			};
 		}
 
@@ -380,15 +450,18 @@ namespace NonStandard.Inputs {
 				Array.ForEach(keyBindGroups, ks=>ks.Update(IsKeyBindAmbiguousWithTextInput));
 			}
 			Array.ForEach(keyBindGroups, ks=>ks.Resolve(debugPrintPossibleKeyConflicts, debugPrintActivatedEvents));
+			for(int i = 0; i < axisBinds.Count; ++i) {
+				axisBinds[i].Update();
+			}
+			++updates;
 		}
-
-		public static bool IsQuitting { get; private set; }
     
 		public void UpdateCurrentKeyBindText() {
 			EnsureInitializedKeyBindGroups();
 			StringBuilder sb = new StringBuilder();
 			for (int s = 0; s < keyBindGroups.Length; ++s) {
 				KBindGroup ks = keyBindGroups[s];
+				if (ks.keyBindList.Count == 0) continue;
 				sb.Append($"[{ks.name}]\n");
 				for (int i = 0; i < ks.keyBindList.Count; ++i) {
 					KBind kb = ks.keyBindList[i];
@@ -416,6 +489,16 @@ namespace NonStandard.Inputs {
 					if (needsPriority) { sb.Append(kb.priority.ToString()); }
 					sb.Append(": ");
 					sb.Append(kb.name);
+					sb.Append("\n");
+				}
+			}
+			if(axisBinds.Count > 0) {
+				sb.Append($"[Axis]\n");
+				for(int i = 0; i < axisBinds.Count; ++i) {
+					AxBind ab = axisBinds[i];
+					sb.Append(ab.ShortDescribe(" | "));
+					sb.Append(" :: ");
+					sb.Append(ab.name);
 					sb.Append("\n");
 				}
 			}

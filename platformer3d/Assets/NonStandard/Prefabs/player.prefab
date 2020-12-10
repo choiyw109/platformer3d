@@ -115,7 +115,7 @@ RectTransform:
   - {fileID: 22408588}
   - {fileID: 22486380}
   m_Father: {fileID: 470314}
-  m_RootOrder: 3
+  m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}
@@ -284,13 +284,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   joystickStaysInFixedPosition: 1
-  inputAxis:
-  - name: normal input
-    horizontalAxis: Horizontal
-    verticalAxis: Vertical
-    sensitivityMultiplier: 0
-    notNormalized: 0
-    modifiers: []
+  normalizeAxisInput: 1
   handleDistance: 4
   unNormalizedInput: {x: 0, y: 0, z: 0}
   joystickOutput:
@@ -454,7 +448,6 @@ GameObject:
   - component: {fileID: 11436148}
   - component: {fileID: 11499690}
   - component: {fileID: 11474268}
-  - component: {fileID: 11457772}
   m_Layer: 5
   m_Name: button jump
   m_TagString: Untagged
@@ -606,21 +599,6 @@ MonoBehaviour:
             m_StringArgument: 
             m_BoolArgument: 0
           m_CallState: 2
---- !u!114 &11457772
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 123334}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 8fd40ad8e79c72846a18b26dd15aac05, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  key: 32
-  modifiers: []
-  on: 0
 --- !u!1 &129380
 GameObject:
   m_ObjectHideFlags: 0
@@ -786,7 +764,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   joystickStaysInFixedPosition: 1
-  inputAxis: []
+  normalizeAxisInput: 0
   handleDistance: 4
   unNormalizedInput: {x: 0, y: 0, z: 0}
   joystickOutput:
@@ -967,7 +945,7 @@ Transform:
   m_LocalScale: {x: 0.5, y: 1.5, z: 0.5}
   m_Children: []
   m_Father: {fileID: 470314}
-  m_RootOrder: 2
+  m_RootOrder: 3
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!33 &3399848
 MeshFilter:
@@ -1138,7 +1116,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 164456}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 7be7f486be486684f8af159712ddde6e, type: 3}
   m_Name: 
@@ -1872,9 +1850,10 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
   - {fileID: 488962}
+  - {fileID: 22468678}
   - {fileID: 471020}
   - {fileID: 416840}
-  - {fileID: 22468678}
+  - {fileID: 470298298}
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -1981,7 +1960,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 22474994}
-  - component: {fileID: 11467174}
   m_Layer: 5
   m_Name: control zoom
   m_TagString: Untagged
@@ -2010,35 +1988,6 @@ RectTransform:
   m_AnchoredPosition: {x: 50, y: 250}
   m_SizeDelta: {x: 50, y: 100}
   m_Pivot: {x: 0, y: 0}
---- !u!114 &11467174
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 188396}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 6d5a846f9cb7a1f4bab55520dea54da3, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  axis: Mouse ScrollWheel
-  modifiers: []
-  unityEvent:
-    m_PersistentCalls:
-      m_Calls:
-      - m_Target: {fileID: 11472320}
-        m_MethodName: AddToTargetDistance
-        m_Mode: 0
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 2
-  outputMultiplier: -4
 --- !u!1 &189500
 GameObject:
   m_ObjectHideFlags: 0
@@ -2129,23 +2078,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   joystickStaysInFixedPosition: 1
-  inputAxis:
-  - name: no turning w/o R-click
-    horizontalAxis: 
-    verticalAxis: 
-    sensitivityMultiplier: 1
-    notNormalized: 1
-    modifiers:
-    - key: 324
-      notPressedExplicitly: 1
-  - name: mouselook w/ R-click
-    horizontalAxis: Mouse X
-    verticalAxis: Mouse Y
-    sensitivityMultiplier: 3
-    notNormalized: 1
-    modifiers:
-    - key: 324
-      notPressedExplicitly: 0
+  normalizeAxisInput: 0
   handleDistance: 4
   unNormalizedInput: {x: 0, y: 0, z: 0}
   joystickOutput:
@@ -2409,7 +2342,7 @@ Transform:
   m_Children:
   - {fileID: 410316}
   m_Father: {fileID: 470314}
-  m_RootOrder: 1
+  m_RootOrder: 2
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!33 &3319556
 MeshFilter:
@@ -2471,10 +2404,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _camera: {fileID: 2044694}
-  body: {fileID: 11477564}
+  bodyTransform: {fileID: 0}
   lookSpeed: 360
   lookingAt: {x: 0, y: 0, z: 0}
-  followMouseEvenWhileMoving: 0
+  followEvenWhileMoving: 0
+  allowCreepyLookAngles: 0
 --- !u!1 &194820
 GameObject:
   m_ObjectHideFlags: 0
@@ -2549,3 +2483,261 @@ MonoBehaviour:
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
   m_PixelsPerUnitMultiplier: 1
+--- !u!1 &470298296
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 470298298}
+  - component: {fileID: 470298300}
+  - component: {fileID: 470298297}
+  m_Layer: 0
+  m_Name: user inputs
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &470298298
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 470298296}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 470314}
+  m_RootOrder: 4
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &470298300
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 470298296}
+  m_Enabled: 0
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 78a45a8d0e6ebf94380ee15da45acc23, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  keyBinds: []
+  axisBinds:
+  - name: mouselook X
+    disable: 0
+    axis:
+    - name: Mouse X
+      multiplier: 3
+      useRawValue: 1
+      useCachedValueIfMissingModifier: 0
+      cachedValue: 0
+      modifiers: []
+    axisEvent:
+      onAxisChange:
+        m_PersistentCalls:
+          m_Calls:
+          - m_Target: {fileID: 11479858}
+            m_MethodName: set_Horizontal
+            m_Mode: 0
+            m_Arguments:
+              m_ObjectArgument: {fileID: 0}
+              m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+              m_IntArgument: 0
+              m_FloatArgument: 0
+              m_StringArgument: 
+              m_BoolArgument: 0
+            m_CallState: 2
+  - name: mouselook Y
+    disable: 0
+    axis:
+    - name: Mouse Y
+      multiplier: 3
+      useRawValue: 1
+      useCachedValueIfMissingModifier: 0
+      cachedValue: 0
+      modifiers: []
+    axisEvent:
+      onAxisChange:
+        m_PersistentCalls:
+          m_Calls:
+          - m_Target: {fileID: 11479858}
+            m_MethodName: set_Vertical
+            m_Mode: 0
+            m_Arguments:
+              m_ObjectArgument: {fileID: 0}
+              m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+              m_IntArgument: 0
+              m_FloatArgument: 0
+              m_StringArgument: 
+              m_BoolArgument: 0
+            m_CallState: 2
+--- !u!114 &470298297
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 470298296}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 78a45a8d0e6ebf94380ee15da45acc23, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  keyBinds:
+  - name: right click to enable mouselook
+    priority: 0
+    disable: 0
+    eventAlwaysTriggerable: 0
+    keyCombinations:
+    - key: 324
+      modifiers: []
+    keyEvent:
+      onPress:
+        m_PersistentCalls:
+          m_Calls:
+          - m_Target: {fileID: 470298300}
+            m_MethodName: set_enabled
+            m_Mode: 6
+            m_Arguments:
+              m_ObjectArgument: {fileID: 0}
+              m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+              m_IntArgument: 0
+              m_FloatArgument: 0
+              m_StringArgument: 
+              m_BoolArgument: 1
+            m_CallState: 2
+      onHold:
+        m_PersistentCalls:
+          m_Calls: []
+      onRelease:
+        m_PersistentCalls:
+          m_Calls:
+          - m_Target: {fileID: 470298300}
+            m_MethodName: set_enabled
+            m_Mode: 6
+            m_Arguments:
+              m_ObjectArgument: {fileID: 0}
+              m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+              m_IntArgument: 0
+              m_FloatArgument: 0
+              m_StringArgument: 
+              m_BoolArgument: 0
+            m_CallState: 2
+  - name: space to jump
+    priority: 0
+    disable: 0
+    eventAlwaysTriggerable: 0
+    keyCombinations:
+    - key: 32
+      modifiers: []
+    keyEvent:
+      onPress:
+        m_PersistentCalls:
+          m_Calls:
+          - m_Target: {fileID: 11477564}
+            m_MethodName: set_Jump
+            m_Mode: 4
+            m_Arguments:
+              m_ObjectArgument: {fileID: 0}
+              m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+              m_IntArgument: 0
+              m_FloatArgument: 1
+              m_StringArgument: 
+              m_BoolArgument: 1
+            m_CallState: 2
+      onHold:
+        m_PersistentCalls:
+          m_Calls: []
+      onRelease:
+        m_PersistentCalls:
+          m_Calls:
+          - m_Target: {fileID: 11477564}
+            m_MethodName: set_Jump
+            m_Mode: 4
+            m_Arguments:
+              m_ObjectArgument: {fileID: 0}
+              m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+              m_IntArgument: 0
+              m_FloatArgument: 0
+              m_StringArgument: 
+              m_BoolArgument: 0
+            m_CallState: 2
+  axisBinds:
+  - name: move left and right
+    disable: 0
+    axis:
+    - name: Horizontal
+      multiplier: 1
+      useRawValue: 1
+      useCachedValueIfMissingModifier: 0
+      cachedValue: 0
+      modifiers: []
+    axisEvent:
+      onAxisChange:
+        m_PersistentCalls:
+          m_Calls:
+          - m_Target: {fileID: 11492906}
+            m_MethodName: set_Horizontal
+            m_Mode: 0
+            m_Arguments:
+              m_ObjectArgument: {fileID: 0}
+              m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+              m_IntArgument: 0
+              m_FloatArgument: 0
+              m_StringArgument: 
+              m_BoolArgument: 0
+            m_CallState: 2
+  - name: move forward and backward
+    disable: 0
+    axis:
+    - name: Vertical
+      multiplier: 1
+      useRawValue: 1
+      useCachedValueIfMissingModifier: 0
+      cachedValue: 0
+      modifiers: []
+    axisEvent:
+      onAxisChange:
+        m_PersistentCalls:
+          m_Calls:
+          - m_Target: {fileID: 11492906}
+            m_MethodName: set_Vertical
+            m_Mode: 0
+            m_Arguments:
+              m_ObjectArgument: {fileID: 0}
+              m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+              m_IntArgument: 0
+              m_FloatArgument: 0
+              m_StringArgument: 
+              m_BoolArgument: 0
+            m_CallState: 2
+  - name: zoom with scroll wheel
+    disable: 0
+    axis:
+    - name: Mouse ScrollWheel
+      multiplier: -4
+      useRawValue: 1
+      useCachedValueIfMissingModifier: 0
+      cachedValue: 0
+      modifiers: []
+    axisEvent:
+      onAxisChange:
+        m_PersistentCalls:
+          m_Calls:
+          - m_Target: {fileID: 11472320}
+            m_MethodName: AddToTargetDistance
+            m_Mode: 0
+            m_Arguments:
+              m_ObjectArgument: {fileID: 0}
+              m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+              m_IntArgument: 0
+              m_FloatArgument: 0
+              m_StringArgument: 
+              m_BoolArgument: 0
+            m_CallState: 2
