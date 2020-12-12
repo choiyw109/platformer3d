@@ -4,6 +4,7 @@ using System.Text;
 using TMPro;
 using UnityEngine;
 using UnityEngine.Events;
+using UnityEngine.EventSystems;
 
 namespace NonStandard.Inputs {
 	public class InputBind {
@@ -16,6 +17,15 @@ namespace NonStandard.Inputs {
 	public class UserInput : MonoBehaviour {
 		public List<KBind> keyBinds = new List<KBind>();
 		public List<AxBind> axisBinds = new List<AxBind>();
+
+		private void Start() {
+			if (keyBinds.Count > 0) {
+				for (int i = 0; i < keyBinds.Count; ++i) { keyBinds[i].Init(); }
+			}
+			if (axisBinds.Count > 0) {
+				for (int i = 0; i < axisBinds.Count; ++i) { axisBinds[i].Init(); }
+			}
+		}
 
 		private void OnEnable() {
 			if(keyBinds.Count > 0 && !AppInput.HasKeyBind(keyBinds[0])) {
@@ -62,11 +72,20 @@ namespace NonStandard.Inputs {
 				if (_instance != null) return _instance;
 				_instance = FindObjectOfType<AppInput>();
 				if (_instance == null) {
-					GameObject go = new GameObject($"<{nameof(AppInput)}>");
+					GameObject go = GetEventSystem().gameObject;
 					_instance = go.AddComponent<AppInput>();
 				}
 				return _instance;
 			}
+		}
+		public static EventSystem GetEventSystem() {
+			EventSystem es = EventSystem.current;
+			if (es == null) {
+				GameObject evOb = new GameObject("EventSystem");
+				es = evOb.AddComponent<EventSystem>();
+				evOb.AddComponent<StandaloneInputModule>();
+			}
+			return es;
 		}
 
 		public static bool RemoveListener(string name) => Instance.RemoveKeyBind(name);
@@ -160,7 +179,7 @@ namespace NonStandard.Inputs {
 		/// <param name="add"></param>
 		private bool UpdateKeyBindGroups(KBind kBind, KBindChange change) {
 			bool changeHappened = false;
-			kBind.Normalize();
+			kBind.Init();
 			//if(kBind.keyCombinations != null && kBind.keyCombinations[0].modifiers != null)
 			//	Log(kBind.keyCombinations[0].modifiers[0]);
 			//Log(kBind);
@@ -428,7 +447,7 @@ namespace NonStandard.Inputs {
 		public void Awake() {
 			Application.quitting += () => {
 				IsQuitting = true;
-				string c = "color", a = "#aa88ff", b = "#4488ff";
+				string c = "color", a = "#84f", b = "#48f";
 				Log($"<{c}={a}>{nameof(AppInput)}</{c}>.{nameof(IsQuitting)} = <{c}={b}>true</{c}>;");
 			};
 			EnsureInitializedKeyBindGroups();

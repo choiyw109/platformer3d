@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.EventSystems;
+using NonStandard.Inputs;
 
 namespace NonStandard {
 	public class SingleJoystick : MonoBehaviour, IDragHandler, IPointerUpHandler, IPointerDownHandler
@@ -60,7 +61,7 @@ namespace NonStandard {
 		{
 			if(EventSystem.current == null)
 			{
-				UserControl.CreateEventSystem();
+				AppInput.GetEventSystem();
 			}
 			if (GetComponent<Image>() == null)
 			{

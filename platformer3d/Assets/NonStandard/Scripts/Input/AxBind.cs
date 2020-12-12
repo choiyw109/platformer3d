@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Text;
 using UnityEngine;
@@ -10,6 +9,7 @@ namespace NonStandard.Inputs {
 	[System.Serializable]
 	public class AxBind : InputBind {
 		public bool disable;
+		private bool wasAllowedLastFrame;
 		[System.Serializable]
 		public class UnityEventFloat : UnityEvent<float> { }
 
@@ -93,7 +93,7 @@ namespace NonStandard.Inputs {
 		/// </summary>
 		public AxBind(Axis[] axis, string name = null, Func<float, bool> onAxisEvent = null, Func<bool> additionalRequirement = null) {
 			this.axis = axis;
-			Normalize();
+			Init();
 			this.name = name;
 			AddEvents(onAxisEvent);
 			if (additionalRequirement != null) {
@@ -101,7 +101,14 @@ namespace NonStandard.Inputs {
 			}
 		}
 
-		public void Normalize() { Array.ForEach(axis, ax => ax.Normalize()); }
+		public void Init() { Array.ForEach(axis, ax => {
+			ax.Init();
+#if UNITY_EDITOR
+			if(ax.multiplier == 0) {
+				Debug.LogWarning($"{nameof(AxBind)}->{name}->{ax.name} has a zero multiplier. Was this intentional?");
+			}
+#endif
+		}); }
 
 		public void AddEvents(Func<float,bool> onAxisEvent = null) {
 			if (onAxisEvent != null) { axisEvent.AddAxisChangeEvent(onAxisEvent); }
@@ -121,8 +128,7 @@ namespace NonStandard.Inputs {
 				}
 				axis = currentAxis.ToArray();
 			}
-			Normalize();
-			//Array.Sort(axis); Array.Reverse(axis); // put least complex key bind first (reverse of usual processing)
+			Init();
 		}
 
 		public void AddAxis(Axis[] axisToAdd, string nameToUse, Func<float,bool> onAxis = null) {
@@ -143,18 +149,6 @@ namespace NonStandard.Inputs {
 			}
 			return text;
 		}
-
-		//public int CompareTo(AxBind other) {
-		//	if (other == null) return -1;
-		//	// the simpler key binding, more likely to be pressed, should go first
-		//	for (int i = 0; i < axis.Length; ++i) {
-		//		if (other.axis.Length <= i) return 1;
-		//		int cmp = axis[i].CompareTo(other.axis[i]);
-		//		if (cmp == 0) { cmp = priority.CompareTo(other.priority); }
-		//		if (cmp != 0) return cmp;
-		//	}
-		//	return 1;
-		//}
 
 		public override string ToString() { return $"{ShortDescribe(" || ")} \"{name}\""; }
 
@@ -178,17 +172,17 @@ namespace NonStandard.Inputs {
 			if (axisEvent.CountAxisChangeEvents > 0) { DoAxis(0); }
 		}
 
-		//public void Sort() {
-		//	Array.Sort(axis, (a, b) => a.priority.CompareTo(b.priority));
-		//}
-
-		//public void Start() {
-		//	Sort();
-		//}
-
 		public void Update() {
-			if (!IsAllowed()) return;
-			for(int i = 0; i < axis.Length; ++i) {
+			bool allowed = IsAllowed();
+			if (!allowed) {
+				if (wasAllowedLastFrame) {
+					wasAllowedLastFrame = false;
+					ClearNonStickyInput();
+				}
+				return;
+			}
+			wasAllowedLastFrame = allowed;
+			for (int i = 0; i < axis.Length; ++i) {
 				Axis ax = axis[i];
 				if (ax.IsValueChanged()) {
 					ax.MarkValueAsKnown();
@@ -197,16 +191,28 @@ namespace NonStandard.Inputs {
 				}
 			}
 		}
+
+		private void ClearNonStickyInput() {
+			for (int i = 0; i < axis.Length; ++i) {
+				Axis ax = axis[i];
+				if (!ax.stickyInput) { ax.cachedValue = 0; }
+			}
+		}
 	}
 
 	[System.Serializable]
 	public class Axis : IComparable<Axis> {
 		public string name;
 		public float multiplier = 1;
-		//public int priority = 1000;
 		private float knownValue = -1;
-		public bool useRawValue = true;
-		public bool useCachedValueIfMissingModifier = false;
+		/// <summary>
+		/// if true, use software dampened value, instead of instantaneous raw value
+		/// </summary>
+		public bool filteredValue = false;
+		/// <summary>
+		/// if true, value will remain unchanged when axis is disabled
+		/// </summary>
+		public bool stickyInput = false;
 		[HideInInspector] public float cachedValue;
 
 		public KCombination.Modifier[] modifiers;
@@ -216,9 +222,9 @@ namespace NonStandard.Inputs {
 		public bool IsValueChanged() {
 			bool isAllowed = modifiers == null || modifiers.Length == 0 || KCombination.IsSatisfiedHeld(modifiers);
 			if (!isAllowed) {
-				if (!useCachedValueIfMissingModifier) { cachedValue = 0; }
+				if (!stickyInput) { cachedValue = 0; }
 			} else {
-				cachedValue = useRawValue ? GetValueRaw() : GetValue();
+				cachedValue = filteredValue ? GetValue() : GetValueRaw();
 			}
 			return (cachedValue != knownValue);
 		}
@@ -228,13 +234,9 @@ namespace NonStandard.Inputs {
 		public float GetValue() { return Input.GetAxis(name); }
 		public float GetValueRaw() { return Input.GetAxisRaw(name); }
 
-		public int CompareTo(Axis other) {
-			return name.CompareTo(other.name);
-		}
+		public int CompareTo(Axis other) { return name.CompareTo(other.name); }
 
-		public void Normalize() {
-			
-		}
+		public void Init() { }
 
 		public override string ToString() { return KCombination.ToString(modifiers)+name; }
 	}

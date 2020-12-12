@@ -14,27 +14,26 @@ public class Follow : MonoBehaviour
 	[Tooltip("degrees per second, 0 for instant copy")]
 	public float smoothRotationFollow = 360;
 	private void Start() { self = transform; }
-	void FixedUpdate() {
-		if (whoToFollow) {
-			if (followPosition) {
-				if(smoothPositionFollow == 0) {
-					self.position = whoToFollow.position + positionOffset;
-				} else {
-					self.position = Vector3.MoveTowards(
-						self.position, whoToFollow.position + positionOffset, 
-						smoothPositionFollow * Time.deltaTime);
-				}
+	public void DoFollow() {
+		if (!whoToFollow) return;
+		if (followPosition) {
+			if (smoothPositionFollow == 0) {
+				self.position = whoToFollow.position + positionOffset;
+			} else {
+				self.position = Vector3.MoveTowards(
+					self.position, whoToFollow.position + positionOffset,
+					smoothPositionFollow * Time.deltaTime);
 			}
-			if (followRotation)
-			{
-				if(smoothRotationFollow == 0) {
-					self.rotation = whoToFollow.rotation;
-				} else {
-					self.rotation = Quaternion.RotateTowards(
-						self.rotation, whoToFollow.rotation, 
-						smoothRotationFollow * Time.deltaTime);
-				}
+		}
+		if (followRotation) {
+			if (smoothRotationFollow == 0) {
+				self.rotation = whoToFollow.rotation;
+			} else {
+				self.rotation = Quaternion.RotateTowards(
+					self.rotation, whoToFollow.rotation,
+					smoothRotationFollow * Time.deltaTime);
 			}
 		}
 	}
+	void FixedUpdate() { DoFollow(); }
 }

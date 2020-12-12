@@ -1246,7 +1246,6 @@ GameObject:
   - component: {fileID: 11485864}
   - component: {fileID: 11470038}
   - component: {fileID: 11437912}
-  - component: {fileID: 11404928}
   m_Layer: 5
   m_Name: zoom+
   m_TagString: Untagged
@@ -1397,21 +1396,6 @@ MonoBehaviour:
             m_StringArgument: 
             m_BoolArgument: 0
           m_CallState: 2
---- !u!114 &11404928
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 171104}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 8fd40ad8e79c72846a18b26dd15aac05, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  key: 278
-  modifiers: []
-  on: 0
 --- !u!1 &171522
 GameObject:
   m_ObjectHideFlags: 0
@@ -1653,7 +1637,6 @@ GameObject:
   - component: {fileID: 11445248}
   - component: {fileID: 11447352}
   - component: {fileID: 11450850}
-  - component: {fileID: 11465624}
   m_Layer: 5
   m_Name: zoom-
   m_TagString: Untagged
@@ -1804,21 +1787,6 @@ MonoBehaviour:
             m_StringArgument: 
             m_BoolArgument: 0
           m_CallState: 2
---- !u!114 &11465624
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 180618}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 8fd40ad8e79c72846a18b26dd15aac05, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  key: 279
-  modifiers: []
-  on: 0
 --- !u!1 &186354
 GameObject:
   m_ObjectHideFlags: 0
@@ -2534,8 +2502,8 @@ MonoBehaviour:
     axis:
     - name: Mouse X
       multiplier: 3
-      useRawValue: 1
-      useCachedValueIfMissingModifier: 0
+      filteredValue: 0
+      stickyInput: 0
       cachedValue: 0
       modifiers: []
     axisEvent:
@@ -2558,8 +2526,8 @@ MonoBehaviour:
     axis:
     - name: Mouse Y
       multiplier: 3
-      useRawValue: 1
-      useCachedValueIfMissingModifier: 0
+      filteredValue: 0
+      stickyInput: 0
       cachedValue: 0
       modifiers: []
     axisEvent:
@@ -2668,14 +2636,92 @@ MonoBehaviour:
               m_StringArgument: 
               m_BoolArgument: 0
             m_CallState: 2
+  - name: pgup zoom in
+    priority: 0
+    disable: 0
+    eventAlwaysTriggerable: 0
+    keyCombinations:
+    - key: 280
+      modifiers: []
+    keyEvent:
+      onPress:
+        m_PersistentCalls:
+          m_Calls:
+          - m_Target: {fileID: 11472320}
+            m_MethodName: set_ZoomInput
+            m_Mode: 4
+            m_Arguments:
+              m_ObjectArgument: {fileID: 0}
+              m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+              m_IntArgument: 0
+              m_FloatArgument: -5
+              m_StringArgument: 
+              m_BoolArgument: 1
+            m_CallState: 2
+      onHold:
+        m_PersistentCalls:
+          m_Calls: []
+      onRelease:
+        m_PersistentCalls:
+          m_Calls:
+          - m_Target: {fileID: 11472320}
+            m_MethodName: set_ZoomInput
+            m_Mode: 4
+            m_Arguments:
+              m_ObjectArgument: {fileID: 0}
+              m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+              m_IntArgument: 0
+              m_FloatArgument: 0
+              m_StringArgument: 
+              m_BoolArgument: 0
+            m_CallState: 2
+  - name: pgdn zoom out
+    priority: 0
+    disable: 0
+    eventAlwaysTriggerable: 0
+    keyCombinations:
+    - key: 281
+      modifiers: []
+    keyEvent:
+      onPress:
+        m_PersistentCalls:
+          m_Calls:
+          - m_Target: {fileID: 11472320}
+            m_MethodName: set_ZoomInput
+            m_Mode: 4
+            m_Arguments:
+              m_ObjectArgument: {fileID: 0}
+              m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+              m_IntArgument: 0
+              m_FloatArgument: 5
+              m_StringArgument: 
+              m_BoolArgument: 1
+            m_CallState: 2
+      onHold:
+        m_PersistentCalls:
+          m_Calls: []
+      onRelease:
+        m_PersistentCalls:
+          m_Calls:
+          - m_Target: {fileID: 11472320}
+            m_MethodName: set_ZoomInput
+            m_Mode: 4
+            m_Arguments:
+              m_ObjectArgument: {fileID: 0}
+              m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+              m_IntArgument: 0
+              m_FloatArgument: 0
+              m_StringArgument: 
+              m_BoolArgument: 0
+            m_CallState: 2
   axisBinds:
   - name: move left and right
     disable: 0
     axis:
     - name: Horizontal
       multiplier: 1
-      useRawValue: 1
-      useCachedValueIfMissingModifier: 0
+      filteredValue: 0
+      stickyInput: 0
       cachedValue: 0
       modifiers: []
     axisEvent:
@@ -2698,8 +2744,8 @@ MonoBehaviour:
     axis:
     - name: Vertical
       multiplier: 1
-      useRawValue: 1
-      useCachedValueIfMissingModifier: 0
+      filteredValue: 0
+      stickyInput: 0
       cachedValue: 0
       modifiers: []
     axisEvent:
@@ -2722,8 +2768,8 @@ MonoBehaviour:
     axis:
     - name: Mouse ScrollWheel
       multiplier: -4
-      useRawValue: 1
-      useCachedValueIfMissingModifier: 0
+      filteredValue: 0
+      stickyInput: 0
       cachedValue: 0
       modifiers: []
     axisEvent:

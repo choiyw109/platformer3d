@@ -353,8 +353,88 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 470298297, guid: 8d542b9fba148c245b1da48b5fd1ffb2, type: 3}
+      propertyPath: axisBinds.Array.data[2].axis.Array.data[0].modifiers.Array.size
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 470298297, guid: 8d542b9fba148c245b1da48b5fd1ffb2, type: 3}
+      propertyPath: axisBinds.Array.size
+      value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: 470298297, guid: 8d542b9fba148c245b1da48b5fd1ffb2, type: 3}
+      propertyPath: axisBinds.Array.data[3].axis.Array.size
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 470298297, guid: 8d542b9fba148c245b1da48b5fd1ffb2, type: 3}
+      propertyPath: axisBinds.Array.data[3].axisEvent.onAxisChange.m_PersistentCalls.m_Calls.Array.size
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 470298297, guid: 8d542b9fba148c245b1da48b5fd1ffb2, type: 3}
+      propertyPath: axisBinds.Array.data[1].axis.Array.data[0].modifiers.Array.size
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 470298297, guid: 8d542b9fba148c245b1da48b5fd1ffb2, type: 3}
+      propertyPath: axisBinds.Array.data[2].axis.Array.data[0].modifiers.Array.data[0].key
+      value: 49
+      objectReference: {fileID: 0}
+    - target: {fileID: 470298297, guid: 8d542b9fba148c245b1da48b5fd1ffb2, type: 3}
+      propertyPath: axisBinds.Array.data[3].name
+      value: move forward and backward
+      objectReference: {fileID: 0}
+    - target: {fileID: 470298297, guid: 8d542b9fba148c245b1da48b5fd1ffb2, type: 3}
+      propertyPath: axisBinds.Array.data[3].axis.Array.data[0].name
+      value: Vertical
+      objectReference: {fileID: 0}
+    - target: {fileID: 470298297, guid: 8d542b9fba148c245b1da48b5fd1ffb2, type: 3}
+      propertyPath: axisBinds.Array.data[3].axis.Array.data[0].multiplier
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 470298297, guid: 8d542b9fba148c245b1da48b5fd1ffb2, type: 3}
+      propertyPath: axisBinds.Array.data[3].axisEvent.onAxisChange.m_PersistentCalls.m_Calls.Array.data[0].m_Target
+      value: 
+      objectReference: {fileID: 947537465}
+    - target: {fileID: 470298297, guid: 8d542b9fba148c245b1da48b5fd1ffb2, type: 3}
+      propertyPath: axisBinds.Array.data[3].axisEvent.onAxisChange.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
+      value: set_Vertical
+      objectReference: {fileID: 0}
+    - target: {fileID: 470298297, guid: 8d542b9fba148c245b1da48b5fd1ffb2, type: 3}
+      propertyPath: axisBinds.Array.data[3].axisEvent.onAxisChange.m_PersistentCalls.m_Calls.Array.data[0].m_Arguments.m_ObjectArgumentAssemblyTypeName
+      value: UnityEngine.Object, UnityEngine
+      objectReference: {fileID: 0}
+    - target: {fileID: 470298297, guid: 8d542b9fba148c245b1da48b5fd1ffb2, type: 3}
+      propertyPath: axisBinds.Array.data[3].axisEvent.onAxisChange.m_PersistentCalls.m_Calls.Array.data[0].m_CallState
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 470298297, guid: 8d542b9fba148c245b1da48b5fd1ffb2, type: 3}
+      propertyPath: axisBinds.Array.data[1].name
+      value: move forward and backward
+      objectReference: {fileID: 0}
+    - target: {fileID: 470298297, guid: 8d542b9fba148c245b1da48b5fd1ffb2, type: 3}
+      propertyPath: axisBinds.Array.data[1].axis.Array.data[0].multiplier
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 470298297, guid: 8d542b9fba148c245b1da48b5fd1ffb2, type: 3}
+      propertyPath: axisBinds.Array.data[1].axis.Array.data[0].modifiers.Array.data[0].key
+      value: 297
+      objectReference: {fileID: 0}
+    - target: {fileID: 470298297, guid: 8d542b9fba148c245b1da48b5fd1ffb2, type: 3}
+      propertyPath: axisBinds.Array.data[3].axisEvent.onAxisChange.m_PersistentCalls.m_Calls.Array.data[0].m_Mode
+      value: 0
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 8d542b9fba148c245b1da48b5fd1ffb2, type: 3}
+--- !u!114 &947537465 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 11492906, guid: 8d542b9fba148c245b1da48b5fd1ffb2,
+    type: 3}
+  m_PrefabInstance: {fileID: 609866819}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 35432f1e0bcce594ab0783cb30238e2c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &1199745513
 GameObject:
   m_ObjectHideFlags: 0

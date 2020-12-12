@@ -126,7 +126,7 @@ namespace NonStandard.Inputs {
 			Func<bool> onReleaseEvent = null, Func<bool> additionalRequirement = null, 
 			bool eventAlwaysTriggerable = false) {
 			keyCombinations = kCombos;
-			Normalize();
+			Init();
 			Array.Sort(keyCombinations); Array.Reverse(keyCombinations); // put least complex key bind first, backwards from usual processing
 			this.name = name;
 			AddEvents(onPressEvent, onHoldEvent, onReleaseEvent);
@@ -136,7 +136,7 @@ namespace NonStandard.Inputs {
 			this.eventAlwaysTriggerable = eventAlwaysTriggerable;
 		}
 
-		public void Normalize() { Array.ForEach(keyCombinations, k => k.Normalize()); }
+		public void Init() { Array.ForEach(keyCombinations, k => k.Init()); }
 
 		public void AddEvents(Func<bool> onPressEvent = null, Func<bool> onHoldEvent = null, Func<bool> onReleaseEvent = null) {
 			if (onPressEvent != null) { keyEvent.AddPress(onPressEvent);}
@@ -158,7 +158,7 @@ namespace NonStandard.Inputs {
 				}
 				keyCombinations = currentKeys.ToArray();
 			}
-			Normalize();
+			Init();
 			Array.Sort(keyCombinations); Array.Reverse(keyCombinations); // put least complex key bind first (reverse of usual processing)
 		}
     
@@ -267,10 +267,10 @@ namespace NonStandard.Inputs {
 			modifiers = null;
 		}
 
-		public void Normalize() {
+		public void Init() {
 			key = key.Normalized();
 			if (modifiers == null) return;
-			for (int i = 0; i < modifiers.Length; ++i) { modifiers[i] = modifiers[i].Normalize(); }
+			for (int i = 0; i < modifiers.Length; ++i) { modifiers[i] = modifiers[i].Init(); }
 		}
 
 		public KCombination(KCode key, KCode modifier) : this(key) {
@@ -330,7 +330,7 @@ namespace NonStandard.Inputs {
 
 			public override int GetHashCode() { return (int) key; }
 
-			public Modifier Normalize() { key = key.Normalized(); return this; }
+			public Modifier Init() { key = key.Normalized(); return this; }
 		}
     
 		public int CompareTo(KCombination other) {
