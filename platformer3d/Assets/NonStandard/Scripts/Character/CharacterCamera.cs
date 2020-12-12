@@ -9,7 +9,7 @@ namespace NonStandard {
 		public bool clipAgainstWalls = true;
 
 		/// <summary>how far the camera wants to be from the target</summary>
-		private float targetDistance = 10;
+		public float targetDistance = 10;
 		/// <summary>calculate how far to clip the camera in the Update, to keep LateUpdate as light as possible
 		private float distanceBecauseOfObstacle;
 		/// <summary>how the camera should be rotated, calculated in Update, to keep LateUpdate as light as possible</summary>
@@ -26,7 +26,7 @@ namespace NonStandard {
 		[HideInInspector] public float horizontalRotateInput, verticalRotateInput, zoomInput;
 		public float HorizontalRotateInput { get { return horizontalRotateInput; } set { horizontalRotateInput = value; } }
 		public float VerticalRotateInput { get { return verticalRotateInput; } set { verticalRotateInput = value; } }
-		public float ZoomInput { get { return zoomInput; } set { zoomInput = value; } }
+		public float ZoomInput { get { return zoomInput; } set { Debug.Log(value); zoomInput = value; } }
 		public void AddToTargetDistance(float value) { targetDistance += value; }
 
 	#if UNITY_EDITOR
@@ -34,15 +34,15 @@ namespace NonStandard {
 		void Reset() {
 			if (target == null) {
 				CharacterMove body = null;
-				if (body == null) { body = t.GetComponentInParent<CharacterMove>(); }
+				if (body == null) { body = transform.GetComponentInParent<CharacterMove>(); }
 				if (body == null) { body = FindObjectOfType<CharacterMove>(); }
 				if (body != null) { target = body.head; }
 			}
 		}
 	#endif
-		private void Awake() { t = transform; }
+		public void Awake() { t = transform; }
 
-		private void Start() {
+		public void Start() {
 			if(target != null) {
 				Vector3 delta = t.position - target.position;
 				targetDistance = delta.magnitude;
@@ -55,7 +55,7 @@ namespace NonStandard {
 			if (Vector3.Dot(Vector3.up, t.forward) > 0) { pitch *= -1; }
 		}
 
-		void Update() {
+		public void Update() {
 			float rotH = horizontalRotateInput * Time.deltaTime, rotV = verticalRotateInput * Time.deltaTime, zoom = zoomInput * Time.deltaTime;
 			targetDistance += zoom;
 			if (rotH != 0 || rotV != 0)
@@ -85,7 +85,7 @@ namespace NonStandard {
 			}
 		}
 
-		private void LateUpdate() {
+		public void LateUpdate() {
 			t.rotation = targetRotation;
 			if(target != null) {
 				t.position = target.position - (targetRotation * Vector3.forward) * distanceBecauseOfObstacle;

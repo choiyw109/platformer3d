@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using UnityEngine.Events;
 using System.Text;
+using UnityEditor.Events;
 
 namespace NonStandard.Inputs {
 	[Serializable]
@@ -30,16 +31,19 @@ namespace NonStandard.Inputs {
 			/// </summary>
 			private Func<bool> actionPress, actionHold, actionRelease;
 
-			public int CountPress => (onPress?.GetPersistentEventCount() ?? 0) + (actionPress?.GetInvocationList().Length ?? 0);
-			public int CountHold => (onHold?.GetPersistentEventCount() ?? 0) + (actionHold?.GetInvocationList().Length ?? 0);
-			public int CountRelease => (onRelease?.GetPersistentEventCount() ?? 0) + (actionRelease?.GetInvocationList().Length ?? 0);
-        
+			public int CountPress { get { return (onPress != null ? onPress.GetPersistentEventCount() : 0) + (actionPress != null ? actionPress.GetInvocationList().Length : 0); } }
+			public int CountHold { get { return (onHold != null? onHold.GetPersistentEventCount() : 0) + (actionHold!=null? actionHold.GetInvocationList().Length : 0); } }
+			public int CountRelease { get { return (onRelease != null? onRelease.GetPersistentEventCount() : 0) + (actionRelease != null? actionRelease.GetInvocationList().Length : 0); } }
+
 			public void AddPress(Func<bool> a) { if (actionPress != null) { actionPress += a; } else { actionPress = a; } }
 			public void AddHold(Func<bool> a) { if (actionHold != null) { actionHold += a; } else { actionHold = a; } }
 			public void AddRelease(Func<bool> a) { if (actionRelease != null) { actionRelease += a; } else { actionRelease = a; } }
-			public bool DoPress() { onPress?.Invoke(); return (actionPress?.Invoke() ?? false); }
-			public bool DoHold() { onHold?.Invoke(); return (actionHold?.Invoke() ?? false);  }
-			public bool DoRelease() { onRelease?.Invoke(); return (actionRelease?.Invoke() ?? false);  }
+			public void AddPress(SetFunc a) { if (onPress == null) { onPress = new UnityEvent(); } a.Bind(onPress); }
+			public void AddHold(SetFunc a) { if (onHold == null) { onHold = new UnityEvent(); } a.Bind(onHold); }
+			public void AddRelease(SetFunc a) { if (onRelease == null) { onRelease = new UnityEvent(); } a.Bind(onRelease); }
+			public bool DoPress() { if(onPress != null)onPress.Invoke(); return (actionPress!=null?actionPress.Invoke() : false); }
+			public bool DoHold() { if(onHold!=null) onHold.Invoke(); return (actionHold!= null?actionHold.Invoke() : false);  }
+			public bool DoRelease() { if(onRelease!=null)onRelease.Invoke(); return (actionRelease!=null?actionRelease.Invoke() : false);  }
 			public void RemovePresses() { onPress.RemoveAllListeners(); actionPress = null;}
 			public void RemoveHolds() { onHold.RemoveAllListeners(); actionHold = null;}
 			public void RemoveReleases() { onRelease.RemoveAllListeners(); actionRelease = null;}
@@ -54,7 +58,8 @@ namespace NonStandard.Inputs {
 				if (ue != null) {
 					for (int i = 0; i < ue.GetPersistentEventCount(); ++i) {
 						if (text.Length > 0) { text.Append("\n"); }
-						string t = ue.GetPersistentTarget(i)?.name ?? "<???>";
+						UnityEngine.Object obj = ue.GetPersistentTarget(i);
+						string t = obj!=null?obj.name : "<???>";
 						text.Append(t).Append(".").Append(FilterMethodName(ue.GetPersistentMethodName(i)));
 					}
 				}
@@ -94,20 +99,65 @@ namespace NonStandard.Inputs {
 		/// </summary>
 		public Func<bool> additionalRequirement;
 
-		public bool IsAllowed() => additionalRequirement == null || additionalRequirement.Invoke();
+		public bool IsAllowed() { return additionalRequirement == null || additionalRequirement.Invoke(); }
 
 		/// <summary>
 		/// describes a function to execute when a specific key-combination is pressed
 		/// </summary>
 		public KBind(KCode key, Func<bool> onPressEvent, string name = null):this(key, name, onPressEvent) { }
 
+		public static SetFunc Func(object target, string setMethodName, object value = null) {
+			return new SetFunc(target, setMethodName, value);
+		}
+
+		public class SetFunc {
+			public object target;
+			public string setMethodName;
+			public object value;
+			public SetFunc(object target, string setMethodName, object value = null) {
+				this.target = target; this.setMethodName = setMethodName; this.value = value;
+			}
+			public UnityAction<T> GetAction<T>(object target, string setMethodName) {
+				System.Reflection.MethodInfo targetinfo = UnityEvent.GetValidMethodInfo(target, setMethodName, new Type[] { typeof(T) });
+				if (targetinfo == null) { Debug.LogError("no method " + setMethodName + "("+typeof(T).Name+") in " + target.ToString()); }
+				return Delegate.CreateDelegate(typeof(UnityAction<T>), target, targetinfo, false) as UnityAction<T>;
+			}
+			public void Bind(UnityEvent @event) {
+				if (value == null) {
+					System.Reflection.MethodInfo targetinfo = UnityEvent.GetValidMethodInfo(target, setMethodName, new Type[0]);
+					if (targetinfo == null) { Debug.LogError("no method " + setMethodName + "() in " + target.ToString()); }
+					UnityAction action = Delegate.CreateDelegate(typeof(UnityAction), target, targetinfo, false) as UnityAction;
+					UnityEventTools.AddVoidPersistentListener(@event, action);
+				} else if(value is int) {
+					UnityEventTools.AddIntPersistentListener(@event, GetAction<int>(target, setMethodName), (int)value);
+				} else if (value is float) {
+					UnityEventTools.AddFloatPersistentListener(@event, GetAction<float>(target, setMethodName), (float)value);
+				} else if (value is string) {
+					UnityEventTools.AddStringPersistentListener(@event, GetAction<string>(target, setMethodName), (string)value);
+				} else if (value is bool) {
+					UnityEventTools.AddBoolPersistentListener(@event, GetAction<bool>(target, setMethodName), (bool)value);
+				} else if (value is GameObject) { Bind<GameObject>(@event);
+				} else if (value is Transform) { Bind<Transform>(@event);
+				} else {
+					Debug.LogError("unable to assign " + value.GetType());
+				}
+			}
+			public void Bind<T>(UnityEvent @event) where T : UnityEngine.Object {
+				if (value is T) {
+					UnityEventTools.AddObjectPersistentListener(@event, GetAction<T>(target, setMethodName), (T)value);
+				} else {
+					Debug.LogError("unable to assign " + value.GetType());
+				}
+			}
+		}
+
 		/// <summary>
 		/// describes functions to execute when a specific key is pressed/held/released
 		/// </summary>
 		public KBind(KCode key, string name = null, Func<bool> onPressEvent = null, Func<bool> onHoldEvent = null,
 			Func<bool> onReleaseEvent = null, Func<bool> additionalRequirement = null, 
-			bool eventAlwaysTriggerable = false)
-			: this(new KCombination(key), name, onPressEvent, onHoldEvent, onReleaseEvent, additionalRequirement, eventAlwaysTriggerable) {
+			bool eventAlwaysTriggerable = false, SetFunc pressFunc=null, SetFunc holdFunc=null, SetFunc releaseFunc=null)
+			: this(new KCombination(key), name, onPressEvent, onHoldEvent, onReleaseEvent, additionalRequirement, eventAlwaysTriggerable,pressFunc,holdFunc,releaseFunc) {
 		}
 
 		/// <summary>
@@ -115,8 +165,8 @@ namespace NonStandard.Inputs {
 		/// </summary>
 		public KBind(KCombination kCombo, string name = null, Func<bool> onPressEvent = null, Func<bool> onHoldEvent = null,
 			Func<bool> onReleaseEvent = null, Func<bool> additionalRequirement = null, 
-			bool eventAlwaysTriggerable = false)
-			: this(new[] {kCombo}, name, onPressEvent, onHoldEvent, onReleaseEvent, additionalRequirement, eventAlwaysTriggerable) {
+			bool eventAlwaysTriggerable = false, SetFunc pressFunc = null, SetFunc holdFunc = null, SetFunc releaseFunc = null)
+			: this(new[] {kCombo}, name, onPressEvent, onHoldEvent, onReleaseEvent, additionalRequirement, eventAlwaysTriggerable,pressFunc,holdFunc,releaseFunc) {
 		}
     
 		/// <summary>
@@ -124,12 +174,12 @@ namespace NonStandard.Inputs {
 		/// </summary>
 		public KBind(KCombination[] kCombos, string name = null, Func<bool> onPressEvent = null, Func<bool> onHoldEvent = null,
 			Func<bool> onReleaseEvent = null, Func<bool> additionalRequirement = null, 
-			bool eventAlwaysTriggerable = false) {
+			bool eventAlwaysTriggerable = false, SetFunc pressFunc = null, SetFunc holdFunc = null, SetFunc releaseFunc = null) {
 			keyCombinations = kCombos;
 			Init();
 			Array.Sort(keyCombinations); Array.Reverse(keyCombinations); // put least complex key bind first, backwards from usual processing
 			this.name = name;
-			AddEvents(onPressEvent, onHoldEvent, onReleaseEvent);
+			AddEvents(onPressEvent, onHoldEvent, onReleaseEvent,pressFunc,holdFunc,releaseFunc);
 			if (additionalRequirement != null) {
 				this.additionalRequirement = additionalRequirement;
 			}
@@ -138,10 +188,14 @@ namespace NonStandard.Inputs {
 
 		public void Init() { Array.ForEach(keyCombinations, k => k.Init()); }
 
-		public void AddEvents(Func<bool> onPressEvent = null, Func<bool> onHoldEvent = null, Func<bool> onReleaseEvent = null) {
+		public void AddEvents(Func<bool> onPressEvent = null, Func<bool> onHoldEvent = null, Func<bool> onReleaseEvent = null, 
+			SetFunc pressFunc = null, SetFunc holdFunc = null, SetFunc releaseFunc = null) {
 			if (onPressEvent != null) { keyEvent.AddPress(onPressEvent);}
 			if (onHoldEvent != null) { keyEvent.AddHold(onHoldEvent);}
 			if (onReleaseEvent != null) { keyEvent.AddRelease(onReleaseEvent);}
+			if (pressFunc != null) { keyEvent.AddPress(pressFunc); }
+			if (holdFunc != null) { keyEvent.AddHold(holdFunc); }
+			if (releaseFunc != null) { keyEvent.AddRelease(releaseFunc); }
 		}
 
 		public void AddComplexKeyPresses(KCombination[] keysToUse) {
@@ -193,7 +247,7 @@ namespace NonStandard.Inputs {
 			return 1;
 		}
 
-		public override string ToString() { return $"{ShortDescribe(" || ")} \"{name}\""; }
+		public override string ToString() { return ShortDescribe(" || ") + " \""+name+"\""; }
 
 		/// <returns>if the action succeeded (which may remove other actions from queue, due to priority)</returns>
 		public bool DoPress() { return keyEvent.DoPress(); }
@@ -281,7 +335,7 @@ namespace NonStandard.Inputs {
 			Array.ForEach(modifiers, m => AddModifier(m));
 		}
 
-		public int GetComplexity() { return modifiers?.Length ?? 0; }
+		public int GetComplexity() { return modifiers != null ? modifiers.Length : 0; }
     
 		public bool AddModifier(KCode kCode) {
 			Modifier mod = new Modifier(kCode);
@@ -344,8 +398,8 @@ namespace NonStandard.Inputs {
 					if (comp != 0) return comp;
 				}
 			} else {
-				int selfScore = modifiers?.Length ?? 0;
-				int otherScore = other.modifiers?.Length ?? 0;
+				int selfScore = modifiers != null?modifiers.Length : 0;
+				int otherScore = other.modifiers != null? other.modifiers.Length : 0;
 				return -selfScore.CompareTo(otherScore); // the more complex ComplexKeyPress should be first
 			}
 			return 0;

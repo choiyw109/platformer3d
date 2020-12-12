@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
-using TMPro;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.EventSystems;
@@ -49,7 +48,7 @@ namespace NonStandard.Inputs {
 
 	public class AppInput : UserInput {
 		[TextArea(1, 30), SerializeField]
-		private string CurrentKeyBindings;
+		protected string CurrentKeyBindings;
 		public bool updateText = true;
 		private bool textInputHappening = false;
 		[HideInInspector] public bool debugPrintPossibleKeyConflicts = false;
@@ -62,8 +61,8 @@ namespace NonStandard.Inputs {
 		protected List<KBind> kBindHolds = new List<KBind>();
 		protected List<KBind> kBindReleases = new List<KBind>();
 
-		public static void Log(string text) => Debug.Log(text);
-		public static void Log(object obj) => Log(obj.ToString());
+		public static void Log(string text) { Debug.Log(text); }
+		public static void Log(object obj) { Log(obj.ToString()); }
 
 		private static AppInput _instance;
 		public static AppInput Instance {
@@ -88,12 +87,12 @@ namespace NonStandard.Inputs {
 			return es;
 		}
 
-		public static bool RemoveListener(string name) => Instance.RemoveKeyBind(name);
-		public static bool RemoveListener(KBind kBind) => Instance.RemoveKeyBind(kBind);
-		public static bool RemoveListener(AxBind axBind) => Instance.RemoveAxisBind(axBind);
-		public static bool AddListener(AxBind axBind) => Instance.AddAxisBind(axBind);
-		public static bool AddListener(KBind kBind) => Instance.AddKeyBind(kBind);
-		public static bool AddListener(KCode key, Func<bool> whatToDo, string name) => AddListener(new KBind(key, whatToDo, name));
+		public static bool RemoveListener(string name) { return Instance.RemoveKeyBind(name); }
+		public static bool RemoveListener(KBind kBind) { return Instance.RemoveKeyBind(kBind); }
+		public static bool RemoveListener(AxBind axBind) { return Instance.RemoveAxisBind(axBind); }
+		public static bool AddListener(AxBind axBind) { return Instance.AddAxisBind(axBind); }
+		public static bool AddListener(KBind kBind) { return Instance.AddKeyBind(kBind); }
+		public static bool AddListener(KCode key, Func<bool> whatToDo, string name) { return AddListener(new KBind(key, whatToDo, name)); }
 
 		public static bool HasKeyBind(string name) {
 			if (string.IsNullOrEmpty(name)) return false;
@@ -214,20 +213,20 @@ namespace NonStandard.Inputs {
 
 		public static void BeginIgnoreKeyBinding(string text) { Instance.textInputHappening = true; }
 		public static void EndIgnoreKeyBinding(string text) { Instance.textInputHappening = false; }
-		private static UnityAction<string> s_BeginIgnoreKeyBinding = BeginIgnoreKeyBinding;
-		private static UnityAction<string> s_EndIgnoreKeyBinding = EndIgnoreKeyBinding;
+		protected static UnityAction<string> s_BeginIgnoreKeyBinding = BeginIgnoreKeyBinding;
+		protected static UnityAction<string> s_EndIgnoreKeyBinding = EndIgnoreKeyBinding;
     
-		public void TextInputDisablesAppInput(TMP_InputField _inputField) {
-			_inputField.onSelect.AddListener( s_BeginIgnoreKeyBinding );
-			_inputField.onDeselect.AddListener( s_EndIgnoreKeyBinding );
-		}
+		//public void TextInputDisablesAppInput(TMPro.TMP_InputField _inputField) {
+		//	_inputField.onSelect.AddListener( s_BeginIgnoreKeyBinding );
+		//	_inputField.onDeselect.AddListener( s_EndIgnoreKeyBinding );
+		//}
     
-		public static Vector3 MousePosition => Input.mousePosition;
-		public static Vector3 MousePositionDelta => new Vector3(Input.GetAxis("Mouse X"), Input.GetAxis("Mouse Y"));
+		public static Vector3 MousePosition { get { return Input.mousePosition; } }
+		public static Vector3 MousePositionDelta { get { return new Vector3(Input.GetAxis("Mouse X"), Input.GetAxis("Mouse Y")); } }
 
 		private static readonly Dictionary<KCode, KState> _pressState = new Dictionary<KCode, KState>();
-    
-		public static bool IsOldKeyCode(KCode code) => Enum.IsDefined(typeof(KeyCode), (int)code);
+
+		public static bool IsOldKeyCode(KCode code) { return Enum.IsDefined(typeof(KeyCode), (int)code); }
 
 		private static bool GetKey_internal(KCode key) {
 			bool v = false;
@@ -266,7 +265,8 @@ namespace NonStandard.Inputs {
 		public static bool GetKey(KCode key) {
 			if (IsOldKeyCode(key)) { return UnityEngine.Input.GetKey((KeyCode)key); }
 			bool pressed = GetKey_internal(key);
-			_pressState.TryGetValue(key, out KState ks);
+			KState ks;
+			_pressState.TryGetValue(key, out ks);
 			if (pressed && ks == KState.KeyReleased) { _pressState[key] = KState.KeyDown; }
 			if (!pressed && ks == KState.KeyHeld) { _pressState[key] = KState.KeyUp;}
 			return pressed;
@@ -274,7 +274,8 @@ namespace NonStandard.Inputs {
     
 		public static bool GetKeyDown(KCode key) {
 			if (IsOldKeyCode(key)) { return UnityEngine.Input.GetKeyDown((KeyCode)key); }
-			_pressState.TryGetValue(key, out KState ks);
+			KState ks;
+			_pressState.TryGetValue(key, out ks);
 			if (ks == KState.KeyHeld || ks == KState.KeyUp) { return false; }
 			bool pressed = GetKey_internal(key);
 			if (pressed && ks == KState.KeyReleased) { _pressState[key] = KState.KeyDown; }
@@ -283,14 +284,15 @@ namespace NonStandard.Inputs {
 
 		public static bool GetKeyUp(KCode key) {
 			if (IsOldKeyCode(key)) { return UnityEngine.Input.GetKeyUp((KeyCode)key); }
-			_pressState.TryGetValue(key, out KState ks);
+			KState ks;
+			_pressState.TryGetValue(key, out ks);
 			if (ks == KState.KeyReleased || ks == KState.KeyDown) { return false; }
 			bool pressed = GetKey_internal(key);
 			if (!pressed && ks == KState.KeyHeld) { _pressState[key] = KState.KeyReleased; }
 			return !pressed;
 		}
 
-		public void Update() => DoUpdate();
+		public void Update() { DoUpdate(); }
 
 		bool IsKeyBindAmbiguousWithTextInput(KBind kBind) {
 			for (int i = 0; i < kBind.keyCombinations.Length; ++i) {
@@ -349,13 +351,13 @@ namespace NonStandard.Inputs {
 				int index = keyBindList.IndexOf(kBind);
 				switch (kind) {
 				case KBindChange.Add:
-					if (index >= 0) { Log($"already added {name} {kBind.name}?"); }
+					if (index >= 0) { Log("already added "+name+" "+kBind.name+"?"); }
 					if (index < 0) {
 						keyBindList.Add(kBind);
 						keyBindList.Sort();
 						changeHappened = true;
 						//Log($"added {name} {kBind.name}");
-					} else { if (index >= 0) { Log($"will not add duplicate {name} {kBind.name}"); } }
+					} else { if (index >= 0) { Log("will not add duplicate "+name+" "+kBind.name); } }
 					break;
 				case KBindChange.Remove:
 					if (index >= 0) { keyBindList.RemoveAt(index); changeHappened = true; }
@@ -399,7 +401,7 @@ namespace NonStandard.Inputs {
 					}
 					// go through all of those keybinds
 					if (conflictHere != -1) {
-						string debugOutput = showConflict?$"possible {name} conflict":"";
+						string debugOutput = showConflict?"possible "+name+" conflict":"";
 						int complexityToKeep = triggerList[a].kp.GetComplexity();
 						// if a keybind's modifiers are all fulfilled by a more complex keybind, ignore this keybind (remove from list) 
 						for (int i = a; i <= conflictHere; ++i) {
@@ -415,12 +417,13 @@ namespace NonStandard.Inputs {
 				}
 
 				string debugText = null;
-				if (logActivatedKeyBinds) { debugText = $"{name} activating: "; }
+				if (logActivatedKeyBinds) { debugText = name+" activating: "; }
             
 				// trigger everything left in the list
 				for (int i = 0; i < triggerList.Count; ++i) {
 					KBind kb = triggerList[i].kb;
-					s_eventConsumed.TryGetValue(triggerList[i].kp.key, out KBind eventConsumed);
+					KBind eventConsumed;
+					s_eventConsumed.TryGetValue(triggerList[i].kp.key, out eventConsumed);
 					if (logActivatedKeyBinds) {
 						if (i > 0) debugText += ", ";
 						debugText += kb.name;
@@ -445,12 +448,12 @@ namespace NonStandard.Inputs {
 		}
 
 		public void Awake() {
-			Application.quitting += () => {
-				IsQuitting = true;
-				string c = "color", a = "#84f", b = "#48f";
-				Log($"<{c}={a}>{nameof(AppInput)}</{c}>.{nameof(IsQuitting)} = <{c}={b}>true</{c}>;");
-			};
 			EnsureInitializedKeyBindGroups();
+		}
+		void OnApplicationQuit() {
+			IsQuitting = true;
+			string c = "color", a = "#84f", b = "#48f";
+			Log("<"+c+"="+a+">AppInput</"+c+">.IsQuitting = <"+c+"="+b+">true</"+c+">;");
 		}
 
 		public void EnsureInitializedKeyBindGroups() {
@@ -481,7 +484,7 @@ namespace NonStandard.Inputs {
 			for (int s = 0; s < keyBindGroups.Length; ++s) {
 				KBindGroup ks = keyBindGroups[s];
 				if (ks.keyBindList.Count == 0) continue;
-				sb.Append($"[{ks.name}]\n");
+				sb.Append("["+ks.name+"]\n");
 				for (int i = 0; i < ks.keyBindList.Count; ++i) {
 					KBind kb = ks.keyBindList[i];
 					bool needsPriority = true;
@@ -512,7 +515,7 @@ namespace NonStandard.Inputs {
 				}
 			}
 			if(axisBinds.Count > 0) {
-				sb.Append($"[Axis]\n");
+				sb.Append("[Axis]\n");
 				for(int i = 0; i < axisBinds.Count; ++i) {
 					AxBind ab = axisBinds[i];
 					sb.Append(ab.ShortDescribe(" | "));

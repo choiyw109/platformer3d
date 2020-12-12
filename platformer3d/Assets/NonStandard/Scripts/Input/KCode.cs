@@ -35,9 +35,9 @@
       }
       return k.ToString();
     }
-	public static bool IsDown(this KCode kCode) => AppInput.GetKeyDown(kCode);
-	public static bool IsUp(this KCode kCode) => AppInput.GetKeyUp(kCode);
-	public static bool IsHeld(this KCode kCode) => AppInput.GetKey(kCode);
+	public static bool IsDown(this KCode kCode) {return AppInput.GetKeyDown(kCode);}
+	public static bool IsUp(this KCode kCode) {return AppInput.GetKeyUp(kCode);}
+	public static bool IsHeld(this KCode kCode) {return AppInput.GetKey(kCode);}
 
 	public static KState GetState(this KCode kCode) {
       return AppInput.GetKeyDown(kCode) ? KState.KeyDown :

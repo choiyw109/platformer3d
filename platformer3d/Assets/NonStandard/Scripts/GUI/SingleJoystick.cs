@@ -27,14 +27,14 @@ namespace NonStandard {
 		private Vector3 lastInputValues;
 
 		public float Horizontal {
-			get => unNormalizedInput.x;
+			get { return unNormalizedInput.x; }
 			set {
 				inputNeedsNormalization = normalizeAxisInput;
 				unNormalizedInput.x = value;
 			}
 		}
 		public float Vertical {
-			get => unNormalizedInput.y;
+			get { return unNormalizedInput.y; }
 			set {
 				inputNeedsNormalization = normalizeAxisInput;
 				unNormalizedInput.y = value;

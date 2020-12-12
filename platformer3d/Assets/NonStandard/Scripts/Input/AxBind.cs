@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using UnityEditor.Events;
 using UnityEngine;
 using UnityEngine.Events;
 
@@ -25,14 +26,22 @@ namespace NonStandard.Inputs {
 		[System.Serializable]
 		public class EventSet {
 
-			[SerializeField, ContextMenuItem("DoAxisChange", "DoAxisChangeEmpty")] protected UnityEventFloat onAxisChange;
+			[SerializeField, ContextMenuItem("DoAxisChange", "DoAxisChangeEmpty")] public UnityEventFloat onAxisChange;
 
 			public Func<float, bool> actionAxisChange;
 
-			public int CountAxisChangeEvents => (onAxisChange?.GetPersistentEventCount() ?? 0) + (actionAxisChange?.GetInvocationList().Length ?? 0);
-			public void AddAxisChangeEvent(Func<float, bool> a) { if (actionAxisChange != null) { actionAxisChange += a; } else { actionAxisChange = a; } }
-			public bool DoAxisChange(float value) { onAxisChange?.Invoke(value); return (actionAxisChange?.Invoke(value) ?? false); }
-			public bool DoAxisChangeEmpty() => DoAxisChange(0);
+			public int CountAxisChangeEvents {
+				get { return (onAxisChange != null ? onAxisChange.GetPersistentEventCount() : 0) + (actionAxisChange != null ? actionAxisChange.GetInvocationList().Length : 0); }
+			}
+			public void AddAxisChangeEvent(Func<float, bool> a) {
+				if (!Application.isPlaying) { Debug.LogWarning("cannot serialize callbacks, only use this method at runtime!"); }
+				if (actionAxisChange != null) { actionAxisChange += a; } else { actionAxisChange = a; }
+			}
+			public bool DoAxisChange(float value) {
+				if(onAxisChange != null) onAxisChange.Invoke(value);
+				return (actionAxisChange != null) ? actionAxisChange.Invoke(value) : false;
+			}
+			public bool DoAxisChangeEmpty() { return DoAxisChange(0); }
 			public void RemoveAxisChange() { onAxisChange.RemoveAllListeners(); actionAxisChange = null; }
 
 			public string GetDelegateText(UnityEventFloat ue, Func<float, bool> a) {
@@ -40,7 +49,8 @@ namespace NonStandard.Inputs {
 				if (ue != null) {
 					for (int i = 0; i < ue.GetPersistentEventCount(); ++i) {
 						if (text.Length > 0) { text.Append("\n"); }
-						string t = ue.GetPersistentTarget(i)?.name ?? "<???>";
+						UnityEngine.Object obj = ue.GetPersistentTarget(i);
+						string t = obj != null ? obj.name : "<???>";
 						text.Append(t).Append(".").Append(KBind.EventSet.FilterMethodName(ue.GetPersistentMethodName(i)));
 					}
 				}
@@ -67,7 +77,7 @@ namespace NonStandard.Inputs {
 		/// </summary>
 		public Func<bool> additionalRequirement;
 
-		public bool IsAllowed() => !disable && (additionalRequirement == null || additionalRequirement.Invoke());
+		public bool IsAllowed() { return !disable && (additionalRequirement == null || additionalRequirement.Invoke()); }
 
 		/// <summary>
 		/// describes a function to execute when a specific key-combination is pressed
@@ -88,6 +98,23 @@ namespace NonStandard.Inputs {
 			: this(new[] { axis }, name, onAxisEvent, additionalRequirement) {
 		}
 
+		public AxBind(Axis axis, string name, object target, string setFloatMethodName, Func<bool> additionalRequirement = null)
+			: this(new[] { axis }, name, null, additionalRequirement) {
+			AddListener(target, setFloatMethodName);
+		}
+
+		public void AddListener(object target, string setFloatMethodName) {
+			System.Reflection.MethodInfo targetinfo = UnityEvent.GetValidMethodInfo(target, setFloatMethodName, new Type[] { typeof(float) });
+			if(targetinfo == null) {
+				Debug.LogError("no method " + setFloatMethodName + " in " + target.ToString());
+			}
+			UnityAction<float> action = Delegate.CreateDelegate(typeof(UnityAction<float>), target, targetinfo, false) as UnityAction<float>;
+			if (axisEvent.onAxisChange == null) {
+				axisEvent.onAxisChange = new AxBind.UnityEventFloat();
+			}
+			UnityEventTools.AddPersistentListener(axisEvent.onAxisChange, action);
+		}
+
 		/// <summary>
 		/// describes functions to execute when any of the specified key-combinations are pressed/held/released
 		/// </summary>
@@ -105,7 +132,7 @@ namespace NonStandard.Inputs {
 			ax.Init();
 #if UNITY_EDITOR
 			if(ax.multiplier == 0) {
-				Debug.LogWarning($"{nameof(AxBind)}->{name}->{ax.name} has a zero multiplier. Was this intentional?");
+				Debug.LogWarning("AxisBind->"+name+"->"+ax.name+" has a zero multiplier. Was this intentional?");
 			}
 #endif
 		}); }
@@ -150,7 +177,7 @@ namespace NonStandard.Inputs {
 			return text;
 		}
 
-		public override string ToString() { return $"{ShortDescribe(" || ")} \"{name}\""; }
+		public override string ToString() { return ShortDescribe(" || ")+" \""+name+"\""; }
 
 		/// <returns>if the action succeeded (which may remove other actions from queue, due to priority)</returns>
 		public bool DoAxis(float value) { return axisEvent.DoAxisChange(value); }
@@ -186,7 +213,8 @@ namespace NonStandard.Inputs {
 				Axis ax = axis[i];
 				if (ax.IsValueChanged()) {
 					ax.MarkValueAsKnown();
-					DoAxis(ax.cachedValue * ax.multiplier);
+					float value = ax.cachedValue * ax.multiplier;
+					DoAxis(value);
 					break;
 				}
 			}
@@ -217,7 +245,7 @@ namespace NonStandard.Inputs {
 
 		public KCombination.Modifier[] modifiers;
 
-		public Axis(string name) { this.name = name; }
+		public Axis(string name, float multiplier = 1) { this.name = name; this.multiplier = multiplier; }
 
 		public bool IsValueChanged() {
 			bool isAllowed = modifiers == null || modifiers.Length == 0 || KCombination.IsSatisfiedHeld(modifiers);

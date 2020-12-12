@@ -141,8 +141,8 @@ namespace NS
 					&& startSize == this.startSize && endSize == this.endSize && this.lineEnds == lineEnds
 					&& this.transform.position == center;
 			}
-			private void SetOrbital(Vector3 start, Vector3 end, Vector3 center = default, float startSize = LINESIZE, float endSize = LINESIZE,
-				End lineEnds = default, int pointCount = -1)
+			private void SetOrbital(Vector3 start, Vector3 end, Vector3 center = default(Vector3), float startSize = LINESIZE, float endSize = LINESIZE,
+				End lineEnds = default(End), int pointCount = -1)
 			{
 				kind = Kind.orbital;
 				points = new Vector3[] { start, end }; count = pointCount;
@@ -221,19 +221,19 @@ namespace NS
 				return lr;
 			}
 
-			public Line_ Line(Vector3 start, Vector3 end, Color color = default, float startSize = LINESIZE, float endSize = LINESIZE)
+			public Line_ Line(Vector3 start, Vector3 end, Color color = default(Color), float startSize = LINESIZE, float endSize = LINESIZE)
 			{
 				return Line(new Vector3[] { start, end }, color, End.normal, startSize, endSize);
 			}
-			public Line_ Arrow(Vector3 vector, Color color = default, float startSize = LINESIZE, float endSize = LINESIZE)
+			public Line_ Arrow(Vector3 vector, Color color = default(Color), float startSize = LINESIZE, float endSize = LINESIZE)
 			{
 				return Line(new Vector3[] { Vector3.zero, vector }, color, End.arrow, startSize, endSize);
 			}
-			public Line_ Arrow(Vector3 start, Vector3 end, Color color = default, float startSize = LINESIZE, float endSize = LINESIZE)
+			public Line_ Arrow(Vector3 start, Vector3 end, Color color = default(Color), float startSize = LINESIZE, float endSize = LINESIZE)
 			{
 				return Line(new Vector3[] { start, end }, color, End.arrow, startSize, endSize);
 			}
-			public Line_ Line(Vector3[] points, Color color = default, End lineEnds = default, float startSize = LINESIZE, float endSize = LINESIZE)
+			public Line_ Line(Vector3[] points, Color color = default(Color), End lineEnds = default(End), float startSize = LINESIZE, float endSize = LINESIZE)
 			{
 				GameObject go = gameObject;
 				if (!IsLine(points, startSize, endSize, lineEnds))
@@ -245,7 +245,7 @@ namespace NS
 				return this;
 			}
 			public Line_ Arc(float angle, Vector3 normal, Vector3 firstPoint, Vector3 center = default(Vector3), Color color = default(Color),
-				End lineEnds = default, int pointCount = -1, float startSize = LINESIZE, float endSize = LINESIZE)
+				End lineEnds = default(End), int pointCount = -1, float startSize = LINESIZE, float endSize = LINESIZE)
 			{
 				GameObject go = gameObject;
 				if (pointCount < 0) { pointCount = (int)(24 * Mathf.Abs(angle) / 180f) + 1; }
@@ -259,10 +259,10 @@ namespace NS
 				SetColor(lr, color);
 				return this;
 			}
-			public Line_ Circle(Vector3 center = default, Vector3 normal = default, Color color = default, float radius = 1,
+			public Line_ Circle(Vector3 center = default(Vector3), Vector3 normal = default(Vector3), Color color = default(Color), float radius = 1,
 				int pointCount = -1, float linesize = LINESIZE)
 			{
-				if (normal == default) { normal = Vector3.up; }
+				if (normal == default(Vector3)) { normal = Vector3.up; }
 				Vector3 firstPoint = Vector3.zero;
 				if (kind == Kind.arc && this.normal == normal && points != null && points.Length > 0)
 				{
@@ -287,7 +287,7 @@ namespace NS
 				return Arc(360, normal, firstPoint, center, color, End.normal, pointCount, linesize);
 			}
 			public Line_ Orbital(Vector3 sphereCenter, Vector3 start, Vector3 end,
-				Color color = default(Color), End lineEnds = default, float startSize = LINESIZE, float endSize = LINESIZE, int pointCount = -1)
+				Color color = default(Color), End lineEnds = default(End), float startSize = LINESIZE, float endSize = LINESIZE, int pointCount = -1)
 			{
 				GameObject go = gameObject;
 				if (!IsOrbital(start, end, sphereCenter, startSize, endSize, lineEnds, pointCount))
@@ -300,7 +300,7 @@ namespace NS
 				SetColor(lr, color);
 				return this;
 			}
-			public Line_ SpiralSphere(Color color = default, Vector3 center = default, float radius = 1, Quaternion rotation = default, float linesize = LINESIZE)
+			public Line_ SpiralSphere(Color color = default(Color), Vector3 center = default(Vector3), float radius = 1, Quaternion rotation = default(Quaternion), float linesize = LINESIZE)
 			{
 				GameObject go = gameObject;
 				if (!IsSpiralSphere(center, radius, linesize, rotation))
@@ -311,7 +311,7 @@ namespace NS
 				SetColor(lr, color);
 				return this;
 			}
-			public Line_ Box(Vector3 size, Vector3 center = default, Quaternion rotation = default, Color color = default, float linesize = LINESIZE)
+			public Line_ Box(Vector3 size, Vector3 center = default(Vector3), Quaternion rotation = default(Quaternion), Color color = default(Color), float linesize = LINESIZE)
 			{
 				GameObject go = gameObject;
 				if (!IsBox(center, size, rotation, linesize))
@@ -358,8 +358,8 @@ namespace NS
 				return angleObjs;
 			}
 			private static Vector3[] default_quaternion_visualization_points = new Vector3[] { Vector3.forward, Vector3.up };
-			public Line_ Quaternion(Quaternion q, Color color, Vector3 position = default, Vector3[] startPoints = null,
-				Quaternion orientation = default, int arcPoints = -1, float linesize = LINESIZE)
+			public Line_ Quaternion(Quaternion q, Color color, Vector3 position = default(Vector3), Vector3[] startPoints = null,
+				Quaternion orientation = default(Quaternion), int arcPoints = -1, float linesize = LINESIZE)
 			{
 				GameObject go = gameObject;
 				float an; Vector3 ax;
@@ -777,7 +777,7 @@ namespace NS
 		/// <param name="rotations"></param>
 		/// <returns></returns>
 		public static Vector3[] CreateSpiralSphere(Vector3 center = default(Vector3), float radius = 1,
-			Quaternion rotation = default, float sides = 12, float rotations = 6)
+			Quaternion rotation = default(Quaternion), float sides = 12, float rotations = 6)
 		{
 			List<Vector3> points = new List<Vector3>(); // List instead of Array because sides and rotations are floats!
 			Vector3 axis = Vector3.up;
@@ -808,7 +808,7 @@ namespace NS
 
 		[System.Obsolete("use Lines.Make(name).SpiralSphere instead, it's more performant.")]
 		public static LineRenderer MakeSpiralSphere(string name, float radius = 1,
-			Vector3 center = default(Vector3), Quaternion rotation = default, Color color = default(Color), float linesize = LINESIZE)
+			Vector3 center = default(Vector3), Quaternion rotation = default(Quaternion), Color color = default(Color), float linesize = LINESIZE)
 		{
 			GameObject go = Get(name, true);
 			return MakeSpiralSphere(ref go, radius, center, rotation, color, linesize);
@@ -820,7 +820,7 @@ namespace NS
 		/// <param name="color">Color.</param>
 		/// <param name="linesize">Linesize.</param>
 		public static LineRenderer MakeSpiralSphere(ref GameObject lineObj, float radius = 1,
-			Vector3 center = default(Vector3), Quaternion rotation = default, Color color = default(Color), float linesize = LINESIZE)
+			Vector3 center = default(Vector3), Quaternion rotation = default(Quaternion), Color color = default(Color), float linesize = LINESIZE)
 		{
 			Vector3[] verts = CreateSpiralSphere(center, radius, rotation, 24, 3);
 			return Make(ref lineObj, verts, verts.Length, color, linesize, linesize);
@@ -1039,7 +1039,7 @@ namespace NS
 				arc = new Vector3[] { start, end };
 			} else
 			{
-				if (upNormal == default) { upNormal = Vector3.up; }
+				if (upNormal == default(Vector3)) { upNormal = Vector3.up; }
 				if (pointCount == 0) { pointCount = Mathf.Max((int)(angle * 24 / 180) + 1, 2); }
 				arc = new Vector3[pointCount];
 				Vector3 delta = end - start;

@@ -1,5 +1,4 @@
 ﻿using UnityEngine;
-using TMPro;
 
 namespace NonStandard {
 	public class FaceMouse : MonoBehaviour
@@ -25,16 +24,10 @@ namespace NonStandard {
 		[Tooltip("FaceMouse even while moving. Allows head to spin backwards around body in certain circumstances...")]
 		public bool followEvenWhileMoving;
 		public bool allowCreepyLookAngles = false;
-		private Quaternion startingRotation;
 		/// <summary>
 		/// if there are no look angle constraints, this is how this object should be looking
 		/// </summary>
 		private Quaternion calculatedIdealLookRotation;
-
-		public void Start()
-		{
-			startingRotation = transform.rotation;// Quaternion.Inverse(transform.rotation);
-		}
 
 		public void LookAtMouse(Vector3 screenCoordinate)
 		{
