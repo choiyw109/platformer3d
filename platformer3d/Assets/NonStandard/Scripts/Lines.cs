@@ -3,8 +3,8 @@ using System.Collections.Generic;
 
 // author: mvaganov@hotmail.com
 // license: Copyfree, public domain. This is free code! Great artists, steal this code!
-// latest version at: https://pastebin.com/raw/8m69iTut -- last updated (2020/03/17)
-namespace NS
+// latest version at: https://pastebin.com/raw/8m69iTut -- last updated (2020/12/12)
+namespace NonStandard
 {
 	/// <summary>static functions for Unity's LineRenderer. Creates visualizations for 3D Vector math.
 	/// This library isn't optimized for performance, it's built to make math less invisible, even at compiled runtime.

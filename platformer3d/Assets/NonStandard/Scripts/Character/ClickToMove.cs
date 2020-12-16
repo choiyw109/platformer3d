@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
 
-namespace NonStandard {
-public class ClickToMove : MonoBehaviour {
+namespace NonStandard.Character {
+	public class ClickToMove : MonoBehaviour {
 	public CharacterMove characterToMove;
 	public KeyCode key = KeyCode.Mouse0;
 	public Camera _camera;

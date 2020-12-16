@@ -1,9 +1,9 @@
 ﻿using UnityEngine;
 
-namespace NonStandard {
-public class LeaveParent : MonoBehaviour {
-	void Start () {
-		transform.SetParent(null);
+namespace NonStandard.Utility {
+	public class LeaveParent : MonoBehaviour {
+		void Start () {
+			transform.SetParent(null);
+		}
 	}
-}
 }

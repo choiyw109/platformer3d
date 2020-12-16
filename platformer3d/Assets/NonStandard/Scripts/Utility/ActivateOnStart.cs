@@ -1,14 +1,11 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.Events;
 
-public class ActivateOnStart : MonoBehaviour
-{
-	public UnityEvent onStart;
-
-	void Start()
-    {
-		onStart.Invoke();
+namespace NonStandard.Utility {
+	public class ActivateOnStart : MonoBehaviour {
+		public UnityEvent onStart;
+		void Start() {
+			onStart.Invoke();
+		}
 	}
 }

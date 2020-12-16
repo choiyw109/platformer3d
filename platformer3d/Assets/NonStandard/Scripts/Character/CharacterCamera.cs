@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 
-namespace NonStandard {
+namespace NonStandard.Character {
 	public class CharacterCamera : MonoBehaviour
 	{
 		[Tooltip("which transform to follow with the camera")]
@@ -26,7 +26,7 @@ namespace NonStandard {
 		[HideInInspector] public float horizontalRotateInput, verticalRotateInput, zoomInput;
 		public float HorizontalRotateInput { get { return horizontalRotateInput; } set { horizontalRotateInput = value; } }
 		public float VerticalRotateInput { get { return verticalRotateInput; } set { verticalRotateInput = value; } }
-		public float ZoomInput { get { return zoomInput; } set { Debug.Log(value); zoomInput = value; } }
+		public float ZoomInput { get { return zoomInput; } set { zoomInput = value; } }
 		public void AddToTargetDistance(float value) { targetDistance += value; }
 
 	#if UNITY_EDITOR
@@ -40,6 +40,14 @@ namespace NonStandard {
 			}
 		}
 	#endif
+
+		public void SetMouseCursorLock(bool a_lock) {
+			Cursor.lockState = a_lock ? CursorLockMode.Locked : CursorLockMode.None;
+			Cursor.visible = !a_lock;
+		}
+		public void LockCursor() { SetMouseCursorLock(true); }
+		public void UnlockCursor() { SetMouseCursorLock(false); }
+
 		public void Awake() { t = transform; }
 
 		public void Start() {
@@ -56,7 +64,10 @@ namespace NonStandard {
 		}
 
 		public void Update() {
-			float rotH = horizontalRotateInput * Time.deltaTime, rotV = verticalRotateInput * Time.deltaTime, zoom = zoomInput * Time.deltaTime;
+			const float anglePerSecondMultiplier = 100;
+			float rotH = horizontalRotateInput * anglePerSecondMultiplier * Time.unscaledDeltaTime,
+				rotV = verticalRotateInput * anglePerSecondMultiplier * Time.unscaledDeltaTime,
+				zoom = zoomInput * Time.unscaledDeltaTime;
 			targetDistance += zoom;
 			if (rotH != 0 || rotV != 0)
 			{

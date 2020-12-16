@@ -107,7 +107,7 @@ namespace Moback.UXP.AssetGeneration
 				cy = edgeOrigins[i].y * texture.height;
 				x = w * edgeDirections[i].x + cx;
 				y = h * edgeDirections[i].y + cy;
-				NS.Lines.DrawLine(texture, (int)cx, (int)cy, (int)x, (int)y, Color.red);
+				NonStandard.Lines.DrawLine(texture, (int)cx, (int)cy, (int)x, (int)y, Color.red);
 			}
 			texture.Apply();
 		}

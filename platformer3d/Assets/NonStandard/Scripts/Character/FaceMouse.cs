@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 
-namespace NonStandard {
+namespace NonStandard.Character {
 	public class FaceMouse : MonoBehaviour
 	{
 		public Camera _camera;

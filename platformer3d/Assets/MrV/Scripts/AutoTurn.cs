@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using NonStandard.Character;
 
 public class AutoTurn : MonoBehaviour
 {

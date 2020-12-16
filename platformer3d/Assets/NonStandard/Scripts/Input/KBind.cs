@@ -38,16 +38,28 @@ namespace NonStandard.Inputs {
 			public void AddPress(Func<bool> a) { if (actionPress != null) { actionPress += a; } else { actionPress = a; } }
 			public void AddHold(Func<bool> a) { if (actionHold != null) { actionHold += a; } else { actionHold = a; } }
 			public void AddRelease(Func<bool> a) { if (actionRelease != null) { actionRelease += a; } else { actionRelease = a; } }
-			public void AddPress(SetFunc a) { if (onPress == null) { onPress = new UnityEvent(); } a.Bind(onPress); }
-			public void AddHold(SetFunc a) { if (onHold == null) { onHold = new UnityEvent(); } a.Bind(onHold); }
-			public void AddRelease(SetFunc a) { if (onRelease == null) { onRelease = new UnityEvent(); } a.Bind(onRelease); }
+			public void AddPress(object target, string setMethodName, object value) { AddPress(new InvokeSet(target, setMethodName, value)); }
+			public void AddHold(object target, string setMethodName, object value) { AddHold(new InvokeSet(target, setMethodName, value)); }
+			public void AddRelease(object target, string setMethodName, object value) { AddRelease(new InvokeSet(target, setMethodName, value)); }
+			public void AddPress(InvokeSet a) { if (onPress == null) { onPress = new UnityEvent(); } a.Bind(onPress); }
+			public void AddHold(InvokeSet a) { if (onHold == null) { onHold = new UnityEvent(); } a.Bind(onHold); }
+			public void AddRelease(InvokeSet a) { if (onRelease == null) { onRelease = new UnityEvent(); } a.Bind(onRelease); }
 			public bool DoPress() { if(onPress != null)onPress.Invoke(); return (actionPress!=null?actionPress.Invoke() : false); }
 			public bool DoHold() { if(onHold!=null) onHold.Invoke(); return (actionHold!= null?actionHold.Invoke() : false);  }
 			public bool DoRelease() { if(onRelease!=null)onRelease.Invoke(); return (actionRelease!=null?actionRelease.Invoke() : false);  }
 			public void RemovePresses() { onPress.RemoveAllListeners(); actionPress = null;}
 			public void RemoveHolds() { onHold.RemoveAllListeners(); actionHold = null;}
 			public void RemoveReleases() { onRelease.RemoveAllListeners(); actionRelease = null;}
-        
+
+			public void AddEvents(Func<bool> onPressEvent = null, Func<bool> onHoldEvent = null, Func<bool> onReleaseEvent = null,
+				InvokeSet pressFunc = null, InvokeSet holdFunc = null, InvokeSet releaseFunc = null) {
+				if (onPressEvent != null) { AddPress(onPressEvent); }
+				if (onHoldEvent != null) { AddHold(onHoldEvent); }
+				if (onReleaseEvent != null) { AddRelease(onReleaseEvent); }
+				if (pressFunc != null) { AddPress(pressFunc); }
+				if (holdFunc != null) { AddHold(holdFunc); }
+				if (releaseFunc != null) { AddRelease(releaseFunc); }
+			}
 			internal static string FilterMethodName(string methodName) {
 				if (methodName.StartsWith("set_") || methodName.StartsWith("get_")) { return methodName.Substring(4); }
 				return methodName;
@@ -106,15 +118,15 @@ namespace NonStandard.Inputs {
 		/// </summary>
 		public KBind(KCode key, Func<bool> onPressEvent, string name = null):this(key, name, onPressEvent) { }
 
-		public static SetFunc Func(object target, string setMethodName, object value = null) {
-			return new SetFunc(target, setMethodName, value);
+		public static InvokeSet Func(object target, string setMethodName, object value = null) {
+			return new InvokeSet(target, setMethodName, value);
 		}
 
-		public class SetFunc {
+		public class InvokeSet {
 			public object target;
 			public string setMethodName;
 			public object value;
-			public SetFunc(object target, string setMethodName, object value = null) {
+			public InvokeSet(object target, string setMethodName, object value = null) {
 				this.target = target; this.setMethodName = setMethodName; this.value = value;
 			}
 			public UnityAction<T> GetAction<T>(object target, string setMethodName) {
@@ -156,7 +168,7 @@ namespace NonStandard.Inputs {
 		/// </summary>
 		public KBind(KCode key, string name = null, Func<bool> onPressEvent = null, Func<bool> onHoldEvent = null,
 			Func<bool> onReleaseEvent = null, Func<bool> additionalRequirement = null, 
-			bool eventAlwaysTriggerable = false, SetFunc pressFunc=null, SetFunc holdFunc=null, SetFunc releaseFunc=null)
+			bool eventAlwaysTriggerable = false, InvokeSet pressFunc=null, InvokeSet holdFunc=null, InvokeSet releaseFunc=null)
 			: this(new KCombination(key), name, onPressEvent, onHoldEvent, onReleaseEvent, additionalRequirement, eventAlwaysTriggerable,pressFunc,holdFunc,releaseFunc) {
 		}
 
@@ -165,7 +177,7 @@ namespace NonStandard.Inputs {
 		/// </summary>
 		public KBind(KCombination kCombo, string name = null, Func<bool> onPressEvent = null, Func<bool> onHoldEvent = null,
 			Func<bool> onReleaseEvent = null, Func<bool> additionalRequirement = null, 
-			bool eventAlwaysTriggerable = false, SetFunc pressFunc = null, SetFunc holdFunc = null, SetFunc releaseFunc = null)
+			bool eventAlwaysTriggerable = false, InvokeSet pressFunc = null, InvokeSet holdFunc = null, InvokeSet releaseFunc = null)
 			: this(new[] {kCombo}, name, onPressEvent, onHoldEvent, onReleaseEvent, additionalRequirement, eventAlwaysTriggerable,pressFunc,holdFunc,releaseFunc) {
 		}
     
@@ -174,12 +186,12 @@ namespace NonStandard.Inputs {
 		/// </summary>
 		public KBind(KCombination[] kCombos, string name = null, Func<bool> onPressEvent = null, Func<bool> onHoldEvent = null,
 			Func<bool> onReleaseEvent = null, Func<bool> additionalRequirement = null, 
-			bool eventAlwaysTriggerable = false, SetFunc pressFunc = null, SetFunc holdFunc = null, SetFunc releaseFunc = null) {
+			bool eventAlwaysTriggerable = false, InvokeSet pressFunc = null, InvokeSet holdFunc = null, InvokeSet releaseFunc = null) {
 			keyCombinations = kCombos;
 			Init();
 			Array.Sort(keyCombinations); Array.Reverse(keyCombinations); // put least complex key bind first, backwards from usual processing
 			this.name = name;
-			AddEvents(onPressEvent, onHoldEvent, onReleaseEvent,pressFunc,holdFunc,releaseFunc);
+			keyEvent.AddEvents(onPressEvent, onHoldEvent, onReleaseEvent,pressFunc,holdFunc,releaseFunc);
 			if (additionalRequirement != null) {
 				this.additionalRequirement = additionalRequirement;
 			}
@@ -187,16 +199,6 @@ namespace NonStandard.Inputs {
 		}
 
 		public void Init() { Array.ForEach(keyCombinations, k => k.Init()); }
-
-		public void AddEvents(Func<bool> onPressEvent = null, Func<bool> onHoldEvent = null, Func<bool> onReleaseEvent = null, 
-			SetFunc pressFunc = null, SetFunc holdFunc = null, SetFunc releaseFunc = null) {
-			if (onPressEvent != null) { keyEvent.AddPress(onPressEvent);}
-			if (onHoldEvent != null) { keyEvent.AddHold(onHoldEvent);}
-			if (onReleaseEvent != null) { keyEvent.AddRelease(onReleaseEvent);}
-			if (pressFunc != null) { keyEvent.AddPress(pressFunc); }
-			if (holdFunc != null) { keyEvent.AddHold(holdFunc); }
-			if (releaseFunc != null) { keyEvent.AddRelease(releaseFunc); }
-		}
 
 		public void AddComplexKeyPresses(KCombination[] keysToUse) {
 			if (keyCombinations.Length == 0 || keyCombinations[0].key == KCode.None) { keyCombinations = keysToUse; } else {
@@ -216,10 +218,11 @@ namespace NonStandard.Inputs {
 			Array.Sort(keyCombinations); Array.Reverse(keyCombinations); // put least complex key bind first (reverse of usual processing)
 		}
     
-		public void AddKeyCombinations(KCombination[] keyCombo, string nameToUse, Func<bool> onPress = null, Func<bool> onHold = null, Func<bool> onRelease = null) {
+		public void AddKeyCombinations(KCombination[] keyCombo, string nameToUse, Func<bool> onPress = null, Func<bool> onHold = null, Func<bool> onRelease = null,
+			InvokeSet setPress = null, InvokeSet setHold = null, InvokeSet setRelease = null) {
 			if (keyCombo != null) { AddComplexKeyPresses(keyCombo); }
 			if (string.IsNullOrEmpty(name)) { name = nameToUse; }
-			AddEvents(onPress, onHold, onRelease);
+			keyEvent.AddEvents(onPress, onHold, onRelease, setPress, setHold, setRelease);
 		}
 
 		public void AddKeyBinding(KCode keyToUse, string nameToUse, Func<bool> onPress = null, Func<bool> onHold = null, Func<bool> onRelease = null) {
